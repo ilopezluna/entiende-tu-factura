@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+
+/* Design tokens — registered with @theme so Tailwind generates the matching
+   utilities (bg-primary, border-t-primary, shadow-card, etc.). */
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+
+  --shadow-card: 0px 4px 6px -4px rgba(0, 0, 0, 0.1), 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------------------------------------------------------------------------
+   Spinners
+   --------------------------------------------------------------------------- */
+@layer components {
+  .spinner {
+    @apply border-4 border-gray-200 border-t-primary rounded-full w-14 h-14 animate-spin mx-auto mb-6;
+  }
+
+  .spinner-small {
+    @apply border-2 border-gray-200 border-t-primary rounded-full w-10 h-10 animate-spin mx-auto mb-4;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Loading & error states
+   --------------------------------------------------------------------------- */
+.error-container {
+  @apply text-center py-8 px-4;
+}
+
+.error-icon {
+  @apply text-6xl mb-4;
+}
+
+.error-container h3 {
+  @apply text-2xl font-semibold text-gray-900 mb-4;
+}
+
+.error-message {
+  @apply text-base text-red-600 mb-8 p-4 bg-red-50 rounded-lg border border-red-200;
+}
+
+.loading {
+  @apply text-center py-12 px-4;
+}
+
+.loading p {
+  @apply text-xl text-gray-900 font-semibold mb-2;
+}
+
+.loading-subtext {
+  @apply text-sm text-gray-600 font-normal;
+}
+
+/* ---------------------------------------------------------------------------
+   Onboarding / step wrappers
+   --------------------------------------------------------------------------- */
+.onboarding-section {
+  @apply max-w-2xl mx-auto px-4 py-16;
+}
+
+.onboarding-section-wide {
+  @apply max-w-4xl;
+}
+
+/* ---------------------------------------------------------------------------
+   Manual QR selector
+   --------------------------------------------------------------------------- */
+.manual-retry-notice {
+  @apply mt-6 p-4 bg-yellow-50 border border-yellow-300 border-l-4 border-l-yellow-500 rounded-lg;
+}
+
+.manual-retry-notice p {
+  @apply text-sm text-yellow-800 leading-relaxed m-0;
+}
