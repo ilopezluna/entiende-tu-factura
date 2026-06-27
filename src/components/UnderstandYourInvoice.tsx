@@ -17,8 +17,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Leaf,
-  PowerOff,
-  Thermometer,
+  PiggyBank,
   TrendingUp,
   ShieldCheck,
   Clock,
@@ -27,6 +26,8 @@ import { formatCurrency, formatCurrencyPerMonth, formatPercentage } from '../uti
 import ContractDetails from './ContractDetails';
 
 const INVOICEDOWN_URL = 'https://www.invoicedown.com/';
+const INVOICEDOWN_POTENCIA_URL = 'https://www.invoicedown.com/calculadora-potencia-optima';
+const INVOICEDOWN_PRECIO_LUZ_URL = 'https://www.invoicedown.com/precio-luz';
 
 interface BreakdownItem {
   label: string;
@@ -503,26 +504,53 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 Si nunca te han &quot;saltado los plomos&quot;, quizás tengas contratada más
                 potencia de la que necesitas. Bajarla un escalón ahorra mucho al año.
               </p>
+              <a
+                href={INVOICEDOWN_POTENCIA_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+              >
+                Calcula tu potencia óptima
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
 
             {/* Tip 2 */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 hover:border-emerald-500/50 transition-colors">
-              <PowerOff className="w-10 h-10 text-emerald-500 mb-4" />
-              <h4 className="font-bold text-lg mb-2 text-gray-900">Adiós al Stand-by</h4>
+              <PiggyBank className="w-10 h-10 text-emerald-500 mb-4" />
+              <h4 className="font-bold text-lg mb-2 text-gray-900">Compara y cambia de tarifa</h4>
               <p className="text-sm text-gray-600">
-                La &quot;luz roja&quot; de la tele o el cargador que no usas siguen consumiendo. Usa
-                regletas con interruptor para apagarlos del todo.
+                Las comercializadoras cambian sus precios constantemente. Comparar entre ofertas es
+                la forma más rápida de dejar de pagar de más por la misma luz.
               </p>
+              <a
+                href={INVOICEDOWN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+              >
+                Encuentra ofertas
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
 
             {/* Tip 3 */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 hover:border-emerald-500/50 transition-colors">
-              <Thermometer className="w-10 h-10 text-emerald-500 mb-4" />
-              <h4 className="font-bold text-lg mb-2 text-gray-900">Climatización eficiente</h4>
+              <Clock className="w-10 h-10 text-emerald-500 mb-4" />
+              <h4 className="font-bold text-lg mb-2 text-gray-900">¿Tienes contrato regulado?</h4>
               <p className="text-sm text-gray-600">
-                Cada grado de calefacción o aire acondicionado que subas/bajes puede suponer hasta
-                un 7% de incremento en tu consumo de energía.
+                En el mercado regulado (PVPC) el precio de la luz cambia cada hora del día. Vigílalo
+                y concentra el consumo en las horas más baratas para ahorrar.
               </p>
+              <a
+                href={INVOICEDOWN_PRECIO_LUZ_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+              >
+                Mira los precios diarios de la luz
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </section>
