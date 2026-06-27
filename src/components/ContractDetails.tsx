@@ -1,6 +1,6 @@
 import React from 'react';
 import { QrParameters, calculatePowerByPeriod } from '../lib/cnmc';
-import { FileText, Calendar, Leaf, Tag, RefreshCw } from 'lucide-react';
+import { FileText, Calendar, Leaf, Tag, RefreshCw, Sun, CloudSun, Moon, Clock } from 'lucide-react';
 import {
   getContractTypeFromTc,
   getContractTypeLabel,
@@ -24,6 +24,71 @@ const categoryStyles: Record<string, { bg: string; text: string; border: string 
   flexible: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' },
 };
 
+type PeriodKey = 'punta' | 'llano' | 'valle' | 'single';
+
+interface PeriodMeta {
+  label: string;
+  tagline: string;
+  hours: string | null;
+  Icon: React.ComponentType<{ className?: string }>;
+  bg: string;
+  border: string;
+  text: string;
+  dot: string;
+}
+
+// Presentational metadata for each time-of-day period. Hours follow the standard
+// 2.0TD peninsular bands; shown with soft wording since some tariffs differ.
+const periodMeta: Record<PeriodKey, PeriodMeta> = {
+  punta: {
+    label: 'Punta',
+    tagline: 'Horas caras',
+    hours: '10-14 h y 18-22 h (laborables)',
+    Icon: Sun,
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    text: 'text-amber-700',
+    dot: 'bg-amber-500',
+  },
+  llano: {
+    label: 'Llano',
+    tagline: 'Horas medias',
+    hours: '8-10 h, 14-18 h y 22-24 h (laborables)',
+    Icon: CloudSun,
+    bg: 'bg-sky-50',
+    border: 'border-sky-200',
+    text: 'text-sky-700',
+    dot: 'bg-sky-500',
+  },
+  valle: {
+    label: 'Valle',
+    tagline: 'Horas baratas',
+    hours: '0-8 h + fines de semana y festivos',
+    Icon: Moon,
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    text: 'text-emerald-700',
+    dot: 'bg-emerald-500',
+  },
+  single: {
+    label: 'Precio único',
+    tagline: 'Todas las horas igual',
+    hours: null,
+    Icon: Clock,
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    text: 'text-primary',
+    dot: 'bg-primary',
+  },
+};
+
+// Power periods map to their visual metadata by stable period code (not by the
+// user-facing label), so copy/translation changes can't break the styling.
+const powerPeriodKey: Record<'P1' | 'P2', PeriodKey> = {
+  P1: 'punta',
+  P2: 'valle',
+};
+
 const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
   const contractType = getContractTypeFromTc(qrParams.tc);
   if (!contractType) return null;
@@ -40,6 +105,28 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
   const hasEnergyPrices =
     qrParams.prE1 !== undefined || qrParams.prE2 !== undefined || qrParams.prE3 !== undefined;
   const hasPrices = hasPowerPrices || hasEnergyPrices;
+
+  // Energy periods present in the contract, mapped to their presentational metadata.
+  // Single-price contracts collapse to one card even if the QR repeats prE2/prE3;
+  // otherwise prE1/prE2/prE3 map to Punta/Llano/Valle.
+  const singlePriceValue = qrParams.prE1 ?? qrParams.prE2 ?? qrParams.prE3;
+  const energyPeriods: { key: PeriodKey; price: number }[] = singlePrice
+    ? singlePriceValue !== undefined
+      ? [{ key: 'single', price: singlePriceValue }]
+      : []
+    : [
+        { key: 'punta', price: qrParams.prE1 },
+        { key: 'llano', price: qrParams.prE2 },
+        { key: 'valle', price: qrParams.prE3 },
+      ].filter((p): p is { key: PeriodKey; price: number } => p.price !== undefined);
+  // Match the number of columns to the number of periods so 2-period contracts
+  // don't leave an empty third column.
+  const energyGridCols =
+    energyPeriods.length >= 3
+      ? 'sm:grid-cols-3'
+      : energyPeriods.length === 2
+        ? 'sm:grid-cols-2'
+        : '';
 
   const revLabel = qrParams.rev !== undefined ? getRevisionFrequencyLabel(qrParams.rev) : null;
 
@@ -87,12 +174,12 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
           <p className="text-gray-600 leading-relaxed">{explanation}</p>
         </div>
 
-        {/* Pricing table */}
+        {/* Pricing cards */}
         {hasPrices && (
           <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
             <h3 className="text-lg font-bold text-gray-900 mb-6">Precios de tu contrato</h3>
             <div
-              className={`grid grid-cols-1 ${hasPowerPrices && hasEnergyPrices ? 'md:grid-cols-2' : ''} gap-8`}
+              className={`grid grid-cols-1 ${hasPowerPrices && hasEnergyPrices ? 'lg:grid-cols-2' : ''} gap-8`}
             >
               {/* Power prices */}
               {hasPowerPrices && (
@@ -100,51 +187,38 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
                     Potencia
                   </h4>
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left text-sm font-medium text-gray-500 pb-2">
-                          Periodo
-                        </th>
-                        <th className="text-right text-sm font-medium text-gray-500 pb-2">
-                          Potencia
-                        </th>
-                        <th className="text-right text-sm font-medium text-gray-500 pb-2">
-                          Precio
-                        </th>
-                        <th className="text-right text-sm font-medium text-gray-500 pb-2">Coste</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                      {powerByPeriod.map((p) => (
-                        <tr key={p.period} className="border-b border-gray-50">
-                          <td className="py-2.5 text-gray-700">
-                            {p.period} ({p.label})
-                          </td>
-                          <td className="py-2.5 text-right text-gray-700">
-                            {formatPower(p.power)}
-                          </td>
-                          <td className="py-2.5 text-right text-gray-700">
-                            {formatNumber(p.pricePerDay, 3)} €/kW/día
-                          </td>
-                          <td className="py-2.5 text-right font-medium text-gray-900">
+                  <div className="space-y-3">
+                    {powerByPeriod.map((p) => {
+                      const meta = periodMeta[powerPeriodKey[p.period]];
+                      const Icon = meta.Icon;
+                      return (
+                        <div
+                          key={p.period}
+                          className={`flex items-center gap-4 p-4 rounded-lg border ${meta.bg} ${meta.border}`}
+                        >
+                          <div className={`p-2 rounded-lg bg-white/70 ${meta.text}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-bold ${meta.text}`}>{meta.label}</p>
+                            <p className="text-xs text-gray-600">
+                              {formatPower(p.power)} · {formatNumber(p.pricePerDay, 3)} €/kW/día
+                            </p>
+                          </div>
+                          <p className="text-right font-bold text-gray-900 whitespace-nowrap">
                             {formatCurrencyPerMonth(p.monthlyCost)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="border-t-2 border-gray-200">
-                        <td className="pt-2.5 font-semibold text-gray-900" colSpan={3}>
-                          Total
-                        </td>
-                        <td className="pt-2.5 text-right font-bold text-gray-900">
-                          {formatCurrencyPerMonth(totalMonthlyPower)}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                  <p className="text-xs text-gray-500 mt-2 italic">
+                          </p>
+                        </div>
+                      );
+                    })}
+                    <div className="flex items-center justify-between px-4 pt-2">
+                      <span className="font-semibold text-gray-900">Total</span>
+                      <span className="font-bold text-lg text-gray-900">
+                        {formatCurrencyPerMonth(totalMonthlyPower)}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3 italic">
                     Lo que pagas por tener la potencia contratada, aunque no consumas nada. Es tu
                     coste fijo mensual.
                   </p>
@@ -157,47 +231,40 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
                     Energía
                   </h4>
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left text-sm font-medium text-gray-500 pb-2">
-                          Periodo
-                        </th>
-                        <th className="text-right text-sm font-medium text-gray-500 pb-2">
-                          Precio
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                      {qrParams.prE1 !== undefined && (
-                        <tr className="border-b border-gray-50">
-                          <td className="py-2.5 text-gray-700">
-                            {singlePrice ? 'Precio único' : 'P1 (Punta)'}
-                          </td>
-                          <td className="py-2.5 text-right font-medium text-gray-900">
-                            {formatPricePerKwh(qrParams.prE1)}
-                          </td>
-                        </tr>
-                      )}
-                      {qrParams.prE2 !== undefined && (
-                        <tr className="border-b border-gray-50">
-                          <td className="py-2.5 text-gray-700">P2 (Llano)</td>
-                          <td className="py-2.5 text-right font-medium text-gray-900">
-                            {formatPricePerKwh(qrParams.prE2)}
-                          </td>
-                        </tr>
-                      )}
-                      {qrParams.prE3 !== undefined && (
-                        <tr>
-                          <td className="py-2.5 text-gray-700">P3 (Valle)</td>
-                          <td className="py-2.5 text-right font-medium text-gray-900">
-                            {formatPricePerKwh(qrParams.prE3)}
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                  <p className="text-xs text-gray-500 mt-2 italic">
+                  {energyPeriods.length > 1 && (
+                    <p className="text-sm text-gray-600 mb-3">
+                      No todas las horas cuestan lo mismo: la electricidad es más barata por la
+                      noche y los fines de semana.
+                    </p>
+                  )}
+                  <div className={`grid grid-cols-1 ${energyGridCols} gap-3`}>
+                    {energyPeriods.map(({ key, price }) => {
+                      const meta = periodMeta[key];
+                      const Icon = meta.Icon;
+                      return (
+                        <div
+                          key={key}
+                          className={`flex flex-col gap-2 p-4 rounded-lg border ${meta.bg} ${meta.border}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2.5 h-2.5 rounded-full ${meta.dot}`}></span>
+                            <Icon className={`w-4 h-4 ${meta.text}`} />
+                            <span className={`font-bold ${meta.text}`}>{meta.label}</span>
+                          </div>
+                          <p className="text-xs text-gray-500">{meta.tagline}</p>
+                          <p className="text-xl font-black text-gray-900">
+                            {formatPricePerKwh(price)}
+                          </p>
+                          {meta.hours && (
+                            <p className="text-xs text-gray-500 leading-snug">
+                              Normalmente: {meta.hours}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3 italic">
                     Lo que pagas por cada kWh que consumes.
                   </p>
                 </div>
