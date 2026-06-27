@@ -4,6 +4,8 @@ Aplicación **100% cliente** (sin backend) que explica tu factura de la luz. Sub
 factura (PDF o imagen), el navegador lee el código QR de la CNMC y te muestra un
 desglose claro de lo que estás pagando: potencia, energía, impuestos y contrato.
 
+👉 **Pruébala en vivo: [entiende-tu-factura](https://ilopezluna.github.io/entiende-tu-factura/)**
+
 > **Privacidad:** todo el procesamiento ocurre en tu navegador. Tu factura nunca
 > se envía a ningún servidor.
 
@@ -60,6 +62,7 @@ src/
 ## Despliegue
 
 Push a `main` despliega automáticamente a GitHub Pages
-([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)). El `base` de Vite es
+([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)), disponible en
+**https://ilopezluna.github.io/entiende-tu-factura/**. El `base` de Vite es
 relativo (`./`), por lo que funciona tanto en `usuario.github.io/<repo>/` como en un
 dominio propio.
