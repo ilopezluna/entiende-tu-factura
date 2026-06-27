@@ -6,6 +6,7 @@ import { Button } from './ui';
 import { QrParameters, parseQrParameters } from '../lib/cnmc';
 import { extractCnmcUrl, isCNMCUrl, loadPdfJs } from '../lib/cnmc/extraction';
 import { CropArea, fileToDataUrl, cropImageToFile, cropPdfToFile } from '../utils/imageProcessing';
+import { SOURCE_REPO_URL } from '../constants';
 
 interface LandingState {
   step: 'upload' | 'processing' | 'manual-selection' | 'processing-crop' | 'result' | 'error';
@@ -174,12 +175,13 @@ const EntiendeTuFacturaLanding: React.FC = () => {
                       <span className="block mt-1">
                         ¿No te lo acabas de creer?{' '}
                         <a
-                          href="https://github.com/ilopezluna/entiende-tu-factura"
+                          href={SOURCE_REPO_URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-primary hover:underline"
+                          aria-label="Ver el código del proyecto en GitHub (se abre en una pestaña nueva)"
+                          className="font-medium text-primary hover:underline focus-visible:underline"
                         >
-                          Aquí puedes ver el código
+                          Aquí puedes ver el código del proyecto
                         </a>
                       </span>
                     </p>
