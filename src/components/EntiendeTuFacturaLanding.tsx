@@ -166,8 +166,10 @@ const EntiendeTuFacturaLanding: React.FC = () => {
                     <span className="text-2xl">🔒</span>
                     <div>
                       <p className="text-sm text-blue-800 leading-relaxed">
-                        Todos los datos se procesan en tu navegador.<br/>
-                        Tu factura no se envía a ningún servidor. Nunca almacenamos tus datos ni tu factura.
+                        Todos los datos se procesan en tu navegador.
+                        <br />
+                        Tu factura no se envía a ningún servidor. Nunca almacenamos tus datos ni tu
+                        factura.
                       </p>
                     </div>
                   </div>
