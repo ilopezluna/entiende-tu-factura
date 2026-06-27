@@ -125,7 +125,7 @@ const EntiendeTuFacturaLanding: React.FC = () => {
           </h1>
 
           {/* Features strip */}
-          <section className="py-12 px-4 bg-white border-y border-gray-200">
+          <section className="hidden md:block py-12 px-4 bg-white border-y border-gray-200">
             <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
@@ -158,25 +158,20 @@ const EntiendeTuFacturaLanding: React.FC = () => {
           </section>
 
           {/* Upload */}
-          <section id="upload-section" className="py-24 px-4 bg-gray-50">
+          <section id="upload-section" className="py-8 md:py-24 px-4 bg-gray-50">
             <div className="max-w-2xl mx-auto">
-              <div className="bg-white rounded-2xl p-12 shadow-card">
+              <div className="bg-white rounded-2xl p-6 md:p-12 shadow-card">
                 <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
                   Sube Tu Factura de Luz
                 </h2>
 
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 items-center">
                     <span className="text-2xl">🔒</span>
-                    <div>
-                      <p className="text-sm text-blue-800 leading-relaxed">
-                        Todos los datos se procesan en tu navegador.
-                      </p>
-                      <p className="text-sm text-blue-800 leading-relaxed">
-                        Tu factura no se envía a ningún servidor. Nunca almacenamos tus datos ni tu
-                        factura.
-                      </p>
-                    </div>
+                    <p className="text-sm text-blue-800 leading-relaxed">
+                      <span className="font-semibold">100% privado:</span> nada sale de tu
+                      navegador.
+                    </p>
                   </div>
                 </div>
 
