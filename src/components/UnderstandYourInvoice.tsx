@@ -221,7 +221,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
               <span className="font-bold tracking-tight uppercase text-sm">Guía de Ahorro</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900">
-              Entiende tu Factura
+              Entiende tu factura
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl">
               Te explicamos tu factura de luz en lenguaje sencillo, sin tecnicismos ni
@@ -237,15 +237,35 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
           </button>
         </header>
 
-        {/* Summary: actual invoice total vs estimated monthly cost */}
+        {/* Summary: estimated monthly cost (hero) vs actual invoice total (validation) */}
         <section className="mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div
+              className={`bg-blue-50/50 rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm p-6 ${
+                invoiceTotal > 0 ? 'md:col-span-2' : 'md:col-span-3'
+              }`}
+            >
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                Coste mensual estimado
+              </p>
+              <p className="text-4xl md:text-5xl font-black text-primary mt-1">
+                {formatCurrencyPerMonth(costBreakdown.totalMonthlyCost)}
+              </p>
+              <p className="text-sm text-gray-700 mt-3">
+                <strong>Tu gasto medio real:</strong> no consumes lo mismo en invierno que en
+                verano, por eso es más fiable que fijarte en una sola factura.
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                Basado en tu consumo de los últimos {consumptionMonths}{' '}
+                {consumptionMonths === 1 ? 'mes' : 'meses'}.
+              </p>
+            </div>
             {invoiceTotal > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:col-span-1">
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                   Total de esta factura
                 </p>
-                <p className="text-3xl font-black text-gray-900 mt-1">
+                <p className="text-2xl font-bold text-gray-900 mt-1">
                   {formatCurrency(invoiceTotal)}
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
@@ -254,18 +274,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 </p>
               </div>
             )}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                Coste mensual estimado
-              </p>
-              <p className="text-3xl font-black text-primary mt-1">
-                {formatCurrencyPerMonth(costBreakdown.totalMonthlyCost)}
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Media basada en tu consumo de los últimos {consumptionMonths}{' '}
-                {consumptionMonths === 1 ? 'mes' : 'meses'}.
-              </p>
-            </div>
           </div>
         </section>
 

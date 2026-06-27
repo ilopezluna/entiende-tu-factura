@@ -62,6 +62,10 @@
   @apply max-w-2xl mx-auto px-4 py-16;
 }
 
+.loading-screen {
+  @apply min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50;
+}
+
 .onboarding-section-wide {
   @apply max-w-4xl;
 }
