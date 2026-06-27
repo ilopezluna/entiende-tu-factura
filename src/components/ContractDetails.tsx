@@ -82,6 +82,13 @@ const periodMeta: Record<PeriodKey, PeriodMeta> = {
   },
 };
 
+// Power periods map to their visual metadata by stable period code (not by the
+// user-facing label), so copy/translation changes can't break the styling.
+const powerPeriodKey: Record<'P1' | 'P2', PeriodKey> = {
+  P1: 'punta',
+  P2: 'valle',
+};
+
 const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
   const contractType = getContractTypeFromTc(qrParams.tc);
   if (!contractType) return null;
@@ -111,6 +118,14 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
         { key: 'llano', price: qrParams.prE2 },
         { key: 'valle', price: qrParams.prE3 },
       ].filter((p): p is { key: PeriodKey; price: number } => p.price !== undefined);
+  // Match the number of columns to the number of periods so 2-period contracts
+  // don't leave an empty third column.
+  const energyGridCols =
+    energyPeriods.length >= 3
+      ? 'sm:grid-cols-3'
+      : energyPeriods.length === 2
+        ? 'sm:grid-cols-2'
+        : '';
 
   const revLabel = qrParams.rev !== undefined ? getRevisionFrequencyLabel(qrParams.rev) : null;
 
@@ -173,7 +188,7 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
                   </h4>
                   <div className="space-y-3">
                     {powerByPeriod.map((p) => {
-                      const meta = periodMeta[p.label === 'Punta' ? 'punta' : 'valle'];
+                      const meta = periodMeta[powerPeriodKey[p.period]];
                       const Icon = meta.Icon;
                       return (
                         <div
@@ -221,9 +236,7 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
                       noche y los fines de semana.
                     </p>
                   )}
-                  <div
-                    className={`grid grid-cols-1 ${energyPeriods.length > 1 ? 'sm:grid-cols-3' : ''} gap-3`}
-                  >
+                  <div className={`grid grid-cols-1 ${energyGridCols} gap-3`}>
                     {energyPeriods.map(({ key, price }) => {
                       const meta = periodMeta[key];
                       const Icon = meta.Icon;
