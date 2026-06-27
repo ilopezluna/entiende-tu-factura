@@ -539,8 +539,8 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
               <Clock className="w-10 h-10 text-emerald-500 mb-4" />
               <h4 className="font-bold text-lg mb-2 text-gray-900">¿Tienes contrato regulado?</h4>
               <p className="text-sm text-gray-600">
-                En el mercado regulado (PVPC) el precio de la luz cambia cada hora del día.
-                Vigílalo y concentra el consumo en las horas más baratas para ahorrar.
+                En el mercado regulado (PVPC) el precio de la luz cambia cada hora del día. Vigílalo
+                y concentra el consumo en las horas más baratas para ahorrar.
               </p>
               <a
                 href={INVOICEDOWN_PRECIO_LUZ_URL}
