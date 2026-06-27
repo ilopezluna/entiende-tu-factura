@@ -170,7 +170,18 @@ const EntiendeTuFacturaLanding: React.FC = () => {
                     <span className="text-2xl">🔒</span>
                     <p className="text-sm text-blue-800 leading-relaxed">
                       <span className="font-semibold">100% privado:</span> nada sale de tu
-                      navegador.
+                      navegador.{' '}
+                      <span className="block mt-1">
+                        ¿No te lo acabas de creer?{' '}
+                        <a
+                          href="https://github.com/ilopezluna/entiende-tu-factura"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-primary hover:underline"
+                        >
+                          Aquí puedes ver el código
+                        </a>
+                      </span>
                     </p>
                   </div>
                 </div>
