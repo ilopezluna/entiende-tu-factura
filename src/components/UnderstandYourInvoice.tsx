@@ -20,7 +20,6 @@ import {
   PowerOff,
   Thermometer,
   TrendingUp,
-  MessageCircle,
   ShieldCheck,
   Clock,
 } from 'lucide-react';
@@ -264,8 +263,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 Media basada en tu consumo de los últimos {consumptionMonths}{' '}
-                {consumptionMonths === 1 ? 'mes' : 'meses'}. Tu gasto real varía según la época del
-                año: no consumes lo mismo en verano que en invierno.
+                {consumptionMonths === 1 ? 'mes' : 'meses'}.
               </p>
             </div>
           </div>
@@ -537,15 +535,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 className="w-full sm:w-auto px-8 py-4 bg-white text-primary font-black rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg text-center"
               >
                 Comparar ofertas en InvoiceDown
-              </a>
-              <a
-                href={INVOICEDOWN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-4 border border-white/30 text-white font-bold rounded-xl hover:bg-white/10 transition-all inline-flex items-center justify-center gap-2"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Hablar con un experto
               </a>
             </div>
           </div>

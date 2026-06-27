@@ -120,24 +120,9 @@ const EntiendeTuFacturaLanding: React.FC = () => {
     <div>
       {state.step === 'upload' && (
         <>
-          {/* Hero */}
-          <section className="py-32 px-4 bg-gradient-to-b from-white to-gray-50">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                ¿Sabes realmente qué estás pagando en tu factura?
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Sube tu factura y te desglosamos cada euro: potencia fija, energía variable,
-                impuestos y cómo puedes reducirlo.
-              </p>
-              <a
-                href="#upload-section"
-                className="inline-block px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary-hover rounded-lg transition-all hover:-translate-y-0.5 shadow-md"
-              >
-                Analizar Mi Factura
-              </a>
-            </div>
-          </section>
+          <h1 className="sr-only">
+            Entiende tu factura de luz: desglose claro de cada euro que pagas
+          </h1>
 
           {/* Features strip */}
           <section className="py-12 px-4 bg-white border-y border-gray-200">
@@ -184,12 +169,12 @@ const EntiendeTuFacturaLanding: React.FC = () => {
                   <div className="flex gap-3">
                     <span className="text-2xl">🔒</span>
                     <div>
-                      <h3 className="font-semibold text-blue-900 mb-2">
-                        Tu Privacidad es Nuestra Prioridad
-                      </h3>
                       <p className="text-sm text-blue-800 leading-relaxed">
-                        Todos los datos se procesan en tu navegador. Nunca enviamos tu factura a
-                        ningún servidor.
+                        Todos los datos se procesan en tu navegador.
+                      </p>
+                      <p className="text-sm text-blue-800 leading-relaxed">
+                        Tu factura no se envía a ningún servidor. Nunca almacenamos tus datos ni tu
+                        factura.
                       </p>
                     </div>
                   </div>
@@ -210,70 +195,6 @@ const EntiendeTuFacturaLanding: React.FC = () => {
               </div>
             </div>
           </section>
-
-          {/* What you'll learn */}
-          <section className="py-24 px-4 bg-white">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-gray-900 mb-4">Qué Descubrirás</h2>
-                <p className="text-lg text-gray-600">
-                  Claridad total sobre cada línea de tu factura
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="p-6 bg-amber-50 border border-amber-200 rounded-xl">
-                  <div className="w-14 h-14 rounded-lg bg-amber-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">📊</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Potencia Fija</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Cuánto pagas solo por tener la luz conectada, independientemente de lo que
-                    consumas.
-                  </p>
-                </div>
-
-                <div className="p-6 bg-blue-50 border border-blue-200 rounded-xl">
-                  <div className="w-14 h-14 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">⚡</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Energía Variable</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    El coste real de la electricidad que consumes, desglosado por periodos horarios.
-                  </p>
-                </div>
-
-                <div className="p-6 bg-green-50 border border-green-200 rounded-xl">
-                  <div className="w-14 h-14 rounded-lg bg-green-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl">💰</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Impuestos y Extras</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Impuesto eléctrico, IVA y otros cargos que a menudo pasan desapercibidos.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* CTA */}
-          <section className="py-24 px-4 bg-primary">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-4xl font-bold text-white mb-6">
-                ¿Listo para entender tu factura?
-              </h2>
-              <p className="text-xl text-blue-100 mb-8">
-                En menos de 30 segundos sabrás exactamente qué estás pagando y cómo puedes
-                reducirlo.
-              </p>
-              <a
-                href="#upload-section"
-                className="inline-block px-8 py-4 text-lg font-semibold text-primary bg-white hover:bg-gray-100 rounded-lg transition-all hover:-translate-y-0.5 shadow-lg"
-              >
-                Analizar Mi Factura Ahora
-              </a>
-            </div>
-          </section>
         </>
       )}
 
@@ -282,7 +203,6 @@ const EntiendeTuFacturaLanding: React.FC = () => {
           <div className="loading">
             <div className="spinner"></div>
             <p>Procesando tu factura...</p>
-            <p className="loading-subtext">Estamos revisando tu factura</p>
           </div>
         </div>
       )}
