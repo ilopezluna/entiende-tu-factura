@@ -109,9 +109,10 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
   // Energy periods present in the contract, mapped to their presentational metadata.
   // Single-price contracts collapse to one card even if the QR repeats prE2/prE3;
   // otherwise prE1/prE2/prE3 map to Punta/Llano/Valle.
+  const singlePriceValue = qrParams.prE1 ?? qrParams.prE2 ?? qrParams.prE3;
   const energyPeriods: { key: PeriodKey; price: number }[] = singlePrice
-    ? qrParams.prE1 !== undefined
-      ? [{ key: 'single', price: qrParams.prE1 }]
+    ? singlePriceValue !== undefined
+      ? [{ key: 'single', price: singlePriceValue }]
       : []
     : [
         { key: 'punta', price: qrParams.prE1 },
