@@ -6,6 +6,7 @@ import { Button } from './ui';
 import { QrParameters, parseQrParameters } from '../lib/cnmc';
 import { extractCnmcUrl, isCNMCUrl, loadPdfJs } from '../lib/cnmc/extraction';
 import { CropArea, fileToDataUrl, cropImageToFile, cropPdfToFile } from '../utils/imageProcessing';
+import { SOURCE_REPO_URL } from '../constants';
 
 interface LandingState {
   step: 'upload' | 'processing' | 'manual-selection' | 'processing-crop' | 'result' | 'error';
@@ -170,7 +171,19 @@ const EntiendeTuFacturaLanding: React.FC = () => {
                     <span className="text-2xl">🔒</span>
                     <p className="text-sm text-blue-800 leading-relaxed">
                       <span className="font-semibold">100% privado:</span> nada sale de tu
-                      navegador.
+                      navegador.{' '}
+                      <span className="block mt-1">
+                        ¿No te lo acabas de creer?{' '}
+                        <a
+                          href={SOURCE_REPO_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Ver el código del proyecto en GitHub (se abre en una pestaña nueva)"
+                          className="font-medium text-primary hover:underline focus-visible:underline"
+                        >
+                          Aquí puedes ver el código del proyecto
+                        </a>
+                      </span>
                     </p>
                   </div>
                 </div>
