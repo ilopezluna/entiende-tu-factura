@@ -162,7 +162,7 @@ const EntiendeTuFacturaLanding: React.FC = () => {
             <div className="max-w-2xl mx-auto">
               <div className="bg-white rounded-2xl p-6 md:p-12 shadow-card">
                 <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-                  Sube Tu Factura de Luz
+                  Sube tu factura de luz
                 </h2>
 
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -194,7 +194,7 @@ const EntiendeTuFacturaLanding: React.FC = () => {
       )}
 
       {state.step === 'processing' && (
-        <div className="onboarding-section">
+        <div className="loading-screen">
           <div className="loading">
             <div className="spinner"></div>
             <p>Procesando tu factura...</p>
@@ -222,7 +222,7 @@ const EntiendeTuFacturaLanding: React.FC = () => {
       )}
 
       {state.step === 'processing-crop' && (
-        <div className="onboarding-section">
+        <div className="loading-screen">
           <div className="loading">
             <div className="spinner"></div>
             <p>Buscando código QR...</p>

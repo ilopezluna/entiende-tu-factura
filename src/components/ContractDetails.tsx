@@ -59,7 +59,7 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
     <section className="mb-12">
       <div className="flex items-center gap-3 mb-6">
         <div className="h-8 w-1 bg-violet-500 rounded-full"></div>
-        <h2 className="text-2xl font-bold text-gray-900">Entiende tu Contrato</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Entiende tu contrato</h2>
       </div>
 
       <div className="space-y-6">
