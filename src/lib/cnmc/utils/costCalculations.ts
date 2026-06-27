@@ -94,6 +94,14 @@ export const calculateActualMonths = (startDate: string, endDate?: string): numb
 
     const end = new Date(endDate);
 
+    // Guard against invalid/empty dates: new Date('') yields Invalid Date whose
+    // getTime() is NaN, which the try/catch does NOT catch and would propagate as
+    // NaN through every monthly cost calculation and UI value.
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      console.warn('Invalid start/end date for period calculation, using 12 months as default');
+      return 12;
+    }
+
     // Calculate the difference in milliseconds
     const diffMs = end.getTime() - start.getTime();
 

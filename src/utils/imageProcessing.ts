@@ -72,7 +72,7 @@ async function pdfToDataUrl(file: File, scale: number, pageNumber = 1): Promise<
   await page.render({
     canvasContext: context,
     viewport: viewport,
-    canvas: canvas as any,
+    canvas: canvas,
   }).promise;
 
   // Convert canvas to data URL
@@ -178,7 +178,7 @@ export async function cropPdfToFile(
   await page.render({
     canvasContext: context,
     viewport: viewport,
-    canvas: canvas as any,
+    canvas: canvas,
   }).promise;
 
   // Calculate the crop coordinates at high resolution.

@@ -109,7 +109,6 @@ export function parseQrParameters(url: string): QrParameters {
       ...(params.prE2 && { prE2: parseFloat(params.prE2) }),
       ...(params.prE3 && { prE3: parseFloat(params.prE3) }),
       ...(params.imp && { imp: parseFloat(params.imp) }),
-      ...(params.impPot && { impPot: parseFloat(params.impPot) }),
       ...(params.impEner && { impEner: parseFloat(params.impEner) }),
       ...(params.impSA && { impSA: parseFloat(params.impSA) }),
       ...(params.impOtrosConIE && {

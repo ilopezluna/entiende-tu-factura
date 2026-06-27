@@ -64,6 +64,18 @@ const actualMonthsCases: ActualMonthsCase[] = [
     endDate: '2024-10-01',
     expectedMonths: 6.01,
   },
+  {
+    description: 'Empty start date - falls back to 12 months (not NaN)',
+    startDate: '',
+    endDate: '2026-01-04',
+    expectedMonths: 12,
+  },
+  {
+    description: 'Invalid date strings - falls back to 12 months (not NaN)',
+    startDate: 'not-a-date',
+    endDate: 'also-not-a-date',
+    expectedMonths: 12,
+  },
 ];
 
 describe('calculateActualMonths', () => {

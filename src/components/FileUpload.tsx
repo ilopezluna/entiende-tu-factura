@@ -47,10 +47,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleFile = (file: File) => {
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    const validTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/bmp',
+    ];
 
     if (!validTypes.includes(file.type)) {
-      alert('Por favor, selecciona un archivo PDF o imagen (JPG, PNG)');
+      alert('Por favor, selecciona un archivo PDF o imagen (JPG, PNG, WEBP, GIF, BMP)');
       return;
     }
 
@@ -67,6 +75,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
     inputRef.current?.click();
   };
 
+  const dropzoneInteractive = !disabled && !loadingMessage;
+
+  const handleDropzoneKeyDown = (e: React.KeyboardEvent) => {
+    if (!dropzoneInteractive) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleButtonClick();
+    }
+  };
+
   return (
     <div className="w-full">
       <div
@@ -79,12 +97,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={!disabled && !loadingMessage ? handleButtonClick : undefined}
+        onClick={dropzoneInteractive ? handleButtonClick : undefined}
+        onKeyDown={handleDropzoneKeyDown}
+        role="button"
+        tabIndex={dropzoneInteractive ? 0 : -1}
+        aria-disabled={!dropzoneInteractive}
+        aria-label="Subir factura: arrastra un archivo o pulsa para seleccionar"
       >
         <input
           ref={inputRef}
           type="file"
-          accept=".pdf,.jpg,.jpeg,.png"
+          accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.bmp"
           onChange={handleChange}
           disabled={disabled}
           style={{ display: 'none' }}
@@ -114,7 +137,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               Seleccionar archivo
             </Button>
             <p className="text-sm text-gray-500 mt-6">
-              Solo archivos PDF o imágenes (JPG, PNG), máximo 10MB
+              Solo archivos PDF o imágenes (JPG, PNG, WEBP, GIF, BMP), máximo 10MB
             </p>
           </>
         )}
