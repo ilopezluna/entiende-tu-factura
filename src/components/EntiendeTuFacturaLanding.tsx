@@ -120,6 +120,10 @@ const EntiendeTuFacturaLanding: React.FC = () => {
     <div>
       {state.step === 'upload' && (
         <>
+          <h1 className="sr-only">
+            Entiende tu factura de luz: desglose claro de cada euro que pagas
+          </h1>
+
           {/* Features strip */}
           <section className="py-12 px-4 bg-white border-y border-gray-200">
             <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -167,7 +171,8 @@ const EntiendeTuFacturaLanding: React.FC = () => {
                     <div>
                       <p className="text-sm text-blue-800 leading-relaxed">
                         Todos los datos se procesan en tu navegador.
-                        <br />
+                      </p>
+                      <p className="text-sm text-blue-800 leading-relaxed">
                         Tu factura no se envía a ningún servidor. Nunca almacenamos tus datos ni tu
                         factura.
                       </p>

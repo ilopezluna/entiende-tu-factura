@@ -136,6 +136,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             >
               Seleccionar archivo
             </Button>
+            <p className="text-xs text-gray-400 mt-4">PDF o imagen · máx. 10MB</p>
           </>
         )}
       </div>
