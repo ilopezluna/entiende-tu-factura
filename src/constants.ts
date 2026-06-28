@@ -11,6 +11,18 @@ const INVOICEDOWN_BASE = 'https://www.invoicedown.com';
 const INVOICEDOWN_UTM = 'utm_source=entiende-tu-factura&utm_medium=referral&utm_campaign=vatio-01';
 
 /**
+ * Normaliza un valor de UTM a un token corto y seguro: minúsculas, solo
+ * `[a-z0-9_-]` y máximo 32 caracteres. Evita reenviar a InvoiceDown valores
+ * inesperados o sensibles que un usuario haya colado en la URL de entrada.
+ */
+function safeChannelToken(value: string | null): string {
+  return (value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, '')
+    .slice(0, 32);
+}
+
+/**
  * Canal con el que llegó el visitante (utm_source[/utm_medium] de la URL actual),
  * para reenviarlo a InvoiceDown y poder atribuir la conversión por canal
  * (p. ej. `reddit_cpc`). Se calcula en el navegador leyendo `location.search`:
@@ -19,14 +31,18 @@ const INVOICEDOWN_UTM = 'utm_source=entiende-tu-factura&utm_medium=referral&utm_
 function inboundChannel(): string {
   if (typeof window === 'undefined') return '';
   const params = new URLSearchParams(window.location.search);
-  const source = params.get('utm_source');
+  const source = safeChannelToken(params.get('utm_source'));
   if (!source) return '';
-  const medium = params.get('utm_medium');
+  const medium = safeChannelToken(params.get('utm_medium'));
   return medium ? `${source}_${medium}` : source;
 }
 
-/** Construye una URL de InvoiceDown con los UTM de salida y el canal de entrada. */
-const invoiceDownUrl = (path = ''): string => {
+/**
+ * Construye una URL de InvoiceDown con los UTM de salida y el canal de entrada.
+ * `path` empieza por `/` (por defecto la raíz) para no provocar un redirect
+ * innecesario que podría descartar los query params.
+ */
+const invoiceDownUrl = (path = '/'): string => {
   const channel = inboundChannel();
   const utm = channel
     ? `${INVOICEDOWN_UTM}&utm_content=${encodeURIComponent(channel)}`
