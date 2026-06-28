@@ -24,10 +24,11 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatCurrencyPerMonth, formatPercentage } from '../utils/formatNumber';
 import ContractDetails from './ContractDetails';
-
-const INVOICEDOWN_URL = 'https://www.invoicedown.com/';
-const INVOICEDOWN_POTENCIA_URL = 'https://www.invoicedown.com/calculadora-potencia-optima';
-const INVOICEDOWN_PRECIO_LUZ_URL = 'https://www.invoicedown.com/precio-luz';
+import {
+  INVOICEDOWN_URL,
+  INVOICEDOWN_POTENCIA_URL,
+  INVOICEDOWN_PRECIO_LUZ_URL,
+} from '../constants';
 
 interface BreakdownItem {
   label: string;
