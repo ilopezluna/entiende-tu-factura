@@ -7,6 +7,7 @@ import { QrParameters, parseQrParameters } from '../lib/cnmc';
 import { extractCnmcUrl, isCNMCUrl, loadPdfJs } from '../lib/cnmc/extraction';
 import { CropArea, fileToDataUrl, cropImageToFile, cropPdfToFile } from '../utils/imageProcessing';
 import { SOURCE_REPO_URL } from '../constants';
+import { trackEvent } from '../utils/analytics';
 
 interface LandingState {
   step: 'upload' | 'processing' | 'manual-selection' | 'processing-crop' | 'result' | 'error';
@@ -37,6 +38,7 @@ const EntiendeTuFacturaLanding: React.FC = () => {
   }, [state.step]);
 
   const handleFileSelect = async (file: File) => {
+    trackEvent('upload_started', { fileType: file.type });
     if (file.type === 'application/pdf' && !isPdfLibReady) {
       setState({
         step: 'error',

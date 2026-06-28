@@ -24,10 +24,12 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatCurrencyPerMonth, formatPercentage } from '../utils/formatNumber';
 import ContractDetails from './ContractDetails';
-
-const INVOICEDOWN_URL = 'https://www.invoicedown.com/';
-const INVOICEDOWN_POTENCIA_URL = 'https://www.invoicedown.com/calculadora-potencia-optima';
-const INVOICEDOWN_PRECIO_LUZ_URL = 'https://www.invoicedown.com/precio-luz';
+import {
+  INVOICEDOWN_URL,
+  INVOICEDOWN_POTENCIA_URL,
+  INVOICEDOWN_PRECIO_LUZ_URL,
+  INVOICEDOWN_CLICK_EVENT,
+} from '../constants';
 
 interface BreakdownItem {
   label: string;
@@ -424,6 +426,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-lg hover:bg-emerald-700 transition-colors flex-shrink-0"
               >
                 Ver ofertas
@@ -450,6 +453,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-lg hover:bg-emerald-700 transition-colors flex-shrink-0"
               >
                 Ver ofertas
@@ -479,6 +483,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 font-bold text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
               >
                 Explorar ofertas
@@ -508,6 +513,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_POTENCIA_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
               >
                 Calcula tu potencia óptima
@@ -527,6 +533,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
               >
                 Encuentra ofertas
@@ -546,6 +553,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_PRECIO_LUZ_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
               >
                 Mira los precios diarios de la luz
@@ -568,6 +576,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 href={INVOICEDOWN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-umami-event={INVOICEDOWN_CLICK_EVENT}
                 className="w-full sm:w-auto px-8 py-4 bg-white text-primary font-black rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg text-center"
               >
                 Comparar ofertas en InvoiceDown
