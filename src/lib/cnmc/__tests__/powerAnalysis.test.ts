@@ -146,6 +146,26 @@ describe('analyzePower', () => {
     expect(analysis.periods[0].freedKw).toBeCloseTo(1.5, 10);
   });
 
+  it('ignores unpriced periods in the saving while keeping their kW diagnosis (mixed prices)', () => {
+    // Only P1 has a power price in the QR; P2 frees kW but cannot be priced.
+    const analysis = analyzePower(baseQrParams({ pmaxP1: 2.8, pmaxP2: 3.1, prP1: 0.1 }));
+
+    expect(analysis.verdict).toBe('lower-possible');
+    expect(analysis.hasPrices).toBe(true);
+
+    // P1 priced: base = 1.5 × 0.10 × 365 = 54.75
+    expect(analysis.periods[0].pricePerDay).toBeCloseTo(0.1, 10);
+    expect(analysis.periods[0].annualSavingBase).toBeCloseTo(54.75, 3);
+
+    // P2 unpriced: kW diagnosis intact, no euros
+    expect(analysis.periods[1].freedKw).toBeCloseTo(1.1, 10);
+    expect(analysis.periods[1].pricePerDay).toBeNull();
+    expect(analysis.periods[1].annualSavingBase).toBeNull();
+
+    // The total only includes the priced period
+    expect(analysis.totalAnnualSaving?.base).toBeCloseTo(54.75, 3);
+  });
+
   it('recommends lowering when only one period has margin', () => {
     const analysis = analyzePower(
       baseQrParams({ pmaxP1: 4.5, pmaxP2: 2.0, prP1: 0.1, prP2: 0.05 }),
@@ -185,5 +205,11 @@ describe('simulateAnnualSaving', () => {
   it('returns null when the QR has no power prices', () => {
     const result = simulateAnnualSaving(baseQrParams({ pmaxP1: 2.8 }), { p1Kw: 3.5, p2Kw: 3.5 });
     expect(result).toBeNull();
+  });
+
+  it('ignores the unpriced period when prices are mixed', () => {
+    // Only P1 priced: base = (4.6 − 3.5) × 0.10 × 365 = 40.15 (P2 does not count)
+    const result = simulateAnnualSaving(baseQrParams({ prP1: 0.1 }), { p1Kw: 3.5, p2Kw: 3.5 });
+    expect(result?.base).toBeCloseTo(40.15, 3);
   });
 });
