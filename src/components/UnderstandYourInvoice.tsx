@@ -506,12 +506,19 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 potencia de la que necesitas. Bajarla un escalón ahorra mucho al año.
               </p>
               <a
+                href="#/bajar-potencia"
+                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+              >
+                Analiza tu potencia con esta misma factura
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
                 href={INVOICEDOWN_POTENCIA_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                className="flex items-center gap-1 mt-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
               >
-                Calcula tu potencia óptima
+                Calcula tu potencia óptima en InvoiceDown
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>
