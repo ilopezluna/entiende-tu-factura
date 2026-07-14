@@ -63,8 +63,11 @@ export interface PowerAnalysis {
  * Round UP to the nearest multiple of `step` (default 0.1 kW), with an epsilon
  * so float noise (e.g. 3.3000000000000003) does not bump to the next step.
  */
-export const roundUpToStep = (value: number, step: number = POWER_STEP_KW): number =>
-  Math.round(Math.ceil(value / step - 1e-9) * step * 10) / 10;
+export const roundUpToStep = (value: number, step: number = POWER_STEP_KW): number => {
+  const steps = Math.ceil(value / step - 1e-9);
+  // Snap float noise from steps × step (supports any step with up to 6 decimals).
+  return Math.round(steps * step * 1e6) / 1e6;
+};
 
 /**
  * Apply the tax cascade used in Spanish electricity invoices: the electricity

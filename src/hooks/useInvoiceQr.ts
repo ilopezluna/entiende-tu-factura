@@ -88,7 +88,10 @@ export function useInvoiceQr(onSuccess: (qrParams: QrParameters) => void): UseIn
           imageDataUrl,
           manualAttempted: false,
         });
-      } catch {
+      } catch (conversionError) {
+        console.warn('Preview conversion for manual selection failed:', conversionError);
+        // Deliberately report the extraction error (not the conversion one):
+        // it's the message that tells the user why their QR couldn't be read.
         setState({
           step: 'error',
           error: error instanceof Error ? error.message : 'Error al procesar la factura',
