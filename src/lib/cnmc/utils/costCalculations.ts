@@ -1,8 +1,8 @@
 import { QrParameters } from '../types';
 
 // Tax rates and fixed charges
-const ELECTRICITY_TAX_RATE = 0.0511269632; // 5.11269632%
-const IVA_RATE = 0.21; // 21%
+export const ELECTRICITY_TAX_RATE = 0.0511269632; // 5.11269632%
+export const IVA_RATE = 0.21; // 21%
 const EQUIPMENT_FEE = 0.83; // €0.83 fixed monthly
 const DAYS_PER_MONTH = 365.25 / 12; // 30.4375 average days per month
 
