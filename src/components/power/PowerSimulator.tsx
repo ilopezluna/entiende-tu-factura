@@ -16,6 +16,11 @@ interface PowerSimulatorProps {
 
 const roundKw = (value: number) => Math.round(value * 10) / 10;
 
+// Below this, formatCurrency (2 decimals) renders the amount as 0,00€, so the
+// saving/overcost boxes would claim a change while showing zero. Display
+// rounding tolerance only — not a "negligible saving" business rule.
+const DISPLAY_ROUNDING_EUR = 0.005;
+
 /**
  * Interactive simulator: drag the slider(s) to any power and see the annual
  * saving instantly. Only rendered when the QR includes power prices
@@ -159,14 +164,14 @@ const PowerSimulator: React.FC<PowerSimulatorProps> = ({ qrParams, analysis }) =
       {saving && (
         <div
           className={`mt-6 rounded-xl p-6 text-center ${
-            saving.total >= 0.005
+            saving.total >= DISPLAY_ROUNDING_EUR
               ? 'bg-emerald-50 border border-emerald-200'
-              : saving.total <= -0.005
+              : saving.total <= -DISPLAY_ROUNDING_EUR
                 ? 'bg-red-50 border border-red-200'
                 : 'bg-gray-50 border border-gray-200'
           }`}
         >
-          {saving.total >= 0.005 && (
+          {saving.total >= DISPLAY_ROUNDING_EUR && (
             <>
               <p className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
                 Ahorro estimado con esta potencia
@@ -180,7 +185,7 @@ const PowerSimulator: React.FC<PowerSimulatorProps> = ({ qrParams, analysis }) =
               </p>
             </>
           )}
-          {saving.total <= -0.005 && (
+          {saving.total <= -DISPLAY_ROUNDING_EUR && (
             <>
               <p className="text-sm font-medium text-red-700 uppercase tracking-wide">
                 Con esta potencia pagarías más
@@ -191,7 +196,7 @@ const PowerSimulator: React.FC<PowerSimulatorProps> = ({ qrParams, analysis }) =
               </p>
             </>
           )}
-          {saving.total > -0.005 && saving.total < 0.005 && (
+          {saving.total > -DISPLAY_ROUNDING_EUR && saving.total < DISPLAY_ROUNDING_EUR && (
             <p className="text-lg font-bold text-gray-700">
               Igual que ahora: ni ahorras ni pagas de más.
             </p>
