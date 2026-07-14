@@ -3,13 +3,7 @@
  */
 
 export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'danger'
-  | 'success'
-  | 'outline'
-  | 'ghost'
-  | 'admin';
+  'primary' | 'secondary' | 'danger' | 'success' | 'outline' | 'ghost' | 'admin';
 
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'full';
 
