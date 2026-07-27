@@ -5,6 +5,7 @@
 
 export {
   calculateActualMonths,
+  resolveConsumptionMonths,
   calculateCostBreakdown,
   calculatePowerByPeriod,
   ELECTRICITY_TAX_RATE,
