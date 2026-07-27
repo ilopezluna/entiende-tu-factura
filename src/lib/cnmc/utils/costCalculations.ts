@@ -154,6 +154,58 @@ export const calculatePowerByPeriod = (qrParams: QrParameters): PowerPeriodCost[
     });
 };
 
+/**
+ * How far the consumption-implied window may exceed the date-derived one before
+ * iniA is treated as unreliable. Observed ratios on conforming invoices sit at
+ * 0.85–0.98, so 3 leaves a wide margin while still catching the ~10x break.
+ */
+const CONSUMPTION_WINDOW_TOLERANCE = 3;
+
+/**
+ * Resolve how many months of consumption caP1/caP2/caP3 actually represent.
+ *
+ * The window is normally iniA → invoice date, taken on trust from the QR. But
+ * some retailers set iniA to the billing period start rather than a year back,
+ * which makes a full year of consumption look like it was used in one month and
+ * inflates the monthly energy estimate roughly tenfold.
+ *
+ * The billing period is a reliable second opinion: cfP over iniF → finF gives a
+ * consumption rate, and dividing the annual total by that rate says how long the
+ * annual figure really spans. When the two disagree wildly, the dates are the
+ * ones that are wrong, so the consumption-implied window wins.
+ *
+ * A short window is not itself suspicious — a new customer with one month of
+ * history legitimately has caP equal to cfP — so only a large overshoot is
+ * corrected, and never past the 12 months caP is defined to cover.
+ */
+export const resolveConsumptionMonths = (qrParams: QrParameters): number => {
+  const dateMonths = calculateActualMonths(qrParams.iniA, qrParams.fFact || qrParams.finF);
+
+  const annualTotal = (qrParams.caP1 || 0) + (qrParams.caP2 || 0) + (qrParams.caP3 || 0);
+  const billingTotal = (qrParams.cfP1 || 0) + (qrParams.cfP2 || 0) + (qrParams.cfP3 || 0);
+
+  // Without both totals and both billing dates there is nothing to check against.
+  if (annualTotal <= 0 || billingTotal <= 0 || !qrParams.iniF || !qrParams.finF) {
+    return dateMonths;
+  }
+
+  const billingMonths = calculateActualMonths(qrParams.iniF, qrParams.finF);
+  if (billingMonths <= 0) {
+    return dateMonths;
+  }
+
+  const impliedMonths = annualTotal / (billingTotal / billingMonths);
+  if (!Number.isFinite(impliedMonths) || impliedMonths <= 0) {
+    return dateMonths;
+  }
+
+  if (impliedMonths / dateMonths > CONSUMPTION_WINDOW_TOLERANCE) {
+    return Math.min(impliedMonths, 12);
+  }
+
+  return dateMonths;
+};
+
 export const calculateCostBreakdown = (qrParams: QrParameters): CostBreakdown => {
   // Prices per period, defaulting to prE1 if others not provided
   const prE1 = qrParams.prE1 || 0;
@@ -161,7 +213,7 @@ export const calculateCostBreakdown = (qrParams: QrParameters): CostBreakdown =>
   const prE3 = qrParams.prE3 || prE1;
 
   // Calculate actual months in the consumption period
-  const actualMonths = calculateActualMonths(qrParams.iniA, qrParams.fFact || qrParams.finF);
+  const actualMonths = resolveConsumptionMonths(qrParams);
 
   // Build energy breakdown by period
   const energyByPeriod: EnergyPeriodCost[] = [
