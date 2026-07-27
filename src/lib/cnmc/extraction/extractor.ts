@@ -43,6 +43,16 @@ interface QrCodeResult {
 }
 
 /**
+ * Some invoice generators encode the QR payload as UTF-8 with a byte-order mark, which jsQR
+ * surfaces as leading U+FEFF characters. `new URL()` rejects those, so an otherwise perfectly
+ * readable QR would be treated as unreadable by every downstream consumer. Strip BOM and
+ * surrounding whitespace at the one point where jsQR output enters the system.
+ */
+export function sanitizeQrData(data: string): string {
+  return data.replace(/^[\uFEFF\u200B\s]+|[\uFEFF\u200B\s]+$/g, '');
+}
+
+/**
  * Decode QR code from raw ImageData using jsQR
  * @param imageData - The ImageData to scan
  * @param pageNumber - Page number for reference
@@ -57,7 +67,7 @@ function decodeQrFromImageData(imageData: ImageData, pageNumber: number): QrCode
 
   if (code) {
     qrResults.push({
-      data: code.data,
+      data: sanitizeQrData(code.data),
       page: pageNumber,
       location: {
         topLeft: code.location.topLeftCorner,
