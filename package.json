@@ -17,21 +17,21 @@
   },
   "dependencies": {
     "jsqr": "^1.4.0",
-    "lucide-react": "^1.17.0",
-    "pdfjs-dist": "^5.7.284",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "lucide-react": "^1.28.0",
+    "pdfjs-dist": "^6.2.108",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.0",
-    "@types/node": "^22.10.0",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "@vitejs/plugin-react": "^4.3.4",
-    "prettier": "^3.4.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4.1.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.0",
-    "vitest": "^2.1.8"
+    "typescript": "^7.0.2",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
   }
 }
