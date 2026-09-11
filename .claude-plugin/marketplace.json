@@ -1,5 +1,6 @@
 {
   "name": "entiende-tu-factura",
+  "description": "Herramientas para entender tu factura de la luz española a partir del QR de la CNMC.",
   "owner": {
     "name": "Ignacio López Luna",
     "url": "https://github.com/ilopezluna"
