@@ -6,3 +6,6 @@ dist
 .env
 .env.*
 !.env.example
+
+# CLI del MCP Registry, se descarga a demanda
+mcp-publisher

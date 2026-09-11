@@ -1,24 +1,30 @@
 name: Publish MCP server
 
-# Publishes factura-luz-mcp to npm and lists it in the MCP Registry when an
-# mcp-v* tag is pushed, for example:
+# Releases factura-luz-mcp when an mcp-v* tag is pushed, for example:
 #   npm version patch -w factura-luz-mcp
 #   git tag mcp-v0.1.1 && git push origin mcp-v0.1.1
 #
-# npm publishing needs an NPM_TOKEN repository secret. The MCP Registry needs no
-# secret: it authenticates with this workflow's GitHub OIDC token, which is also
-# what proves ownership of the io.github.ilopezluna/* namespace.
+# No secrets are involved. Both registries authenticate with this workflow's
+# GitHub OIDC token:
+#   - npm, via trusted publishing, pinned on the package settings page to this
+#     repository and to this workflow's filename.
+#   - The MCP Registry, whose OIDC login also proves ownership of the
+#     io.github.ilopezluna/* namespace.
+#
+# The npm side is a STAGED publish: the tag does not put anything live. A human
+# approves the staged version with 2FA, and only then does the registry job run.
 on:
   push:
     tags: ['mcp-v*']
   workflow_dispatch:
 
 jobs:
-  publish:
+  stage:
+    name: Test and stage on npm
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Required both for npm provenance and for MCP Registry OIDC login.
+      # Required for npm trusted publishing.
       id-token: write
     steps:
       - uses: actions/checkout@v7
@@ -27,14 +33,20 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           registry-url: https://registry.npmjs.org
+
+      # Node 22.20.0 ships npm 10.9.3. Trusted publishing needs 11.5.1 and
+      # staged publishing needs 11.15.0, so npm is upgraded here and .nvmrc stays
+      # the single source of truth for the Node version we build and test against.
+      - run: npm install -g npm@12
+
       - run: npm ci
 
-      # Never publish something that does not pass its own tests.
+      # Never release something that does not pass its own tests.
       - run: npm run typecheck -w factura-luz-mcp
       - run: npm test -w factura-luz-mcp
       - run: npm run build -w factura-luz-mcp
 
-      # The registry rejects a server.json whose version does not match the
+      # The MCP Registry rejects a server.json whose version does not match the
       # published package, so derive both from package.json rather than trusting
       # them to have been edited together.
       - name: Sync server.json version with package.json
@@ -43,11 +55,40 @@ jobs:
           VERSION=$(jq -r .version package.json)
           jq --arg v "$VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp
           mv server.tmp server.json
-          echo "Publishing version $VERSION"
+          echo "Releasing version $VERSION"
 
-      - run: npm publish -w factura-luz-mcp --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Staged, not live. Approve it on npmjs.com under Staged Packages, or with
+      # `npm stage approve <stage-id>`. Trusted publishing attaches provenance on
+      # its own, so there is no --provenance flag and no NODE_AUTH_TOKEN.
+      - name: Stage the npm release
+        working-directory: mcp
+        run: npm stage publish --access public
+
+      # Carried to the next job, which runs after the staged version is approved.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: server-json
+          path: mcp/server.json
+
+  registry:
+    name: List on the MCP Registry
+    needs: stage
+    runs-on: ubuntu-latest
+    # Gated on purpose: this job waits for a reviewer so the registry never
+    # advertises a version that is still sitting unapproved in npm's staging
+    # area. The 'release' environment must have you as a required reviewer,
+    # otherwise GitHub runs this immediately and the gate does nothing.
+    environment: release
+    permissions:
+      contents: read
+      # Required for the MCP Registry OIDC login.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v4
+        with:
+          name: server-json
+          path: mcp
 
       - name: Install mcp-publisher
         run: |
