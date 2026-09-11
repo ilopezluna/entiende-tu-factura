@@ -8,6 +8,9 @@
  */
 
 export * from './types';
+export * from './content';
+export * from './format';
 export * from './extraction/validator';
 export * from './parsing';
+export * from './extraction/sanitize';
 export * from './utils';

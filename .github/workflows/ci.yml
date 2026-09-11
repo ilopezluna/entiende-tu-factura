@@ -19,3 +19,9 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+      # The MCP server shares src/lib/cnmc with the web app, so it is built and
+      # tested on every change rather than only before a release.
+      - run: npm run typecheck -w factura-luz-mcp
+      - run: npm test -w factura-luz-mcp
+      - run: npm run build -w factura-luz-mcp

@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "workspaces": [
+    "mcp"
+  ],
   "description": "Sube tu factura de la luz y entiende qué estás pagando. 100% en el navegador, sin backend.",
   "scripts": {
     "dev": "vite",
@@ -13,7 +16,9 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run format:check && npm run typecheck && npm test"
+    "validate": "npm run format:check && npm run typecheck && npm test && npm run test:mcp",
+    "build:mcp": "npm run build -w factura-luz-mcp",
+    "test:mcp": "npm run typecheck -w factura-luz-mcp && npm test -w factura-luz-mcp"
   },
   "dependencies": {
     "jsqr": "^1.4.0",

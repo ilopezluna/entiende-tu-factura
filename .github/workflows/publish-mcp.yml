@@ -1,0 +1,61 @@
+name: Publish MCP server
+
+# Publishes factura-luz-mcp to npm and lists it in the MCP Registry when an
+# mcp-v* tag is pushed, for example:
+#   npm version patch -w factura-luz-mcp
+#   git tag mcp-v0.1.1 && git push origin mcp-v0.1.1
+#
+# npm publishing needs an NPM_TOKEN repository secret. The MCP Registry needs no
+# secret: it authenticates with this workflow's GitHub OIDC token, which is also
+# what proves ownership of the io.github.ilopezluna/* namespace.
+on:
+  push:
+    tags: ['mcp-v*']
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required both for npm provenance and for MCP Registry OIDC login.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+
+      # Never publish something that does not pass its own tests.
+      - run: npm run typecheck -w factura-luz-mcp
+      - run: npm test -w factura-luz-mcp
+      - run: npm run build -w factura-luz-mcp
+
+      # The registry rejects a server.json whose version does not match the
+      # published package, so derive both from package.json rather than trusting
+      # them to have been edited together.
+      - name: Sync server.json version with package.json
+        working-directory: mcp
+        run: |
+          VERSION=$(jq -r .version package.json)
+          jq --arg v "$VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp
+          mv server.tmp server.json
+          echo "Publishing version $VERSION"
+
+      - run: npm publish -w factura-luz-mcp --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+
+      - name: Publish to the MCP Registry
+        working-directory: mcp
+        run: |
+          mcp-publisher login github-oidc
+          mcp-publisher publish

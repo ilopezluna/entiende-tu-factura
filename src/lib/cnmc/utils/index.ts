@@ -8,6 +8,7 @@ export {
   resolveConsumptionMonths,
   calculateCostBreakdown,
   calculatePowerByPeriod,
+  getPowerPriceBasis,
   ELECTRICITY_TAX_RATE,
   IVA_RATE,
   type EnergyPeriodCost,
@@ -30,3 +31,14 @@ export {
   type SavingsBreakdown,
   type PowerVerdict,
 } from './powerAnalysis';
+
+export {
+  calculateBreakdownPercentages,
+  calculatePeriodDays,
+  splitInvoiceAmounts,
+  getPermanenciaStatus,
+  FALLBACK_BREAKDOWN_PERCENTAGES,
+  type BreakdownPercentages,
+  type InvoiceAmountSplit,
+  type PermanenciaStatus,
+} from './invoiceSummary';

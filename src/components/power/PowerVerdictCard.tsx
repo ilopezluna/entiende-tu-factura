@@ -1,7 +1,6 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle2, Info, TrendingDown } from 'lucide-react';
-import { PowerAnalysis } from '../../lib/cnmc';
-import { formatCurrency, formatPower } from '../../utils/formatNumber';
+import { PowerAnalysis, formatCurrency, formatPower } from '../../lib/cnmc';
 
 interface PowerVerdictCardProps {
   analysis: PowerAnalysis;

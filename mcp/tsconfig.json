@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  // Only this package's own sources are listed. The shared CNMC modules are
+  // pulled in transitively by import, which means the browser-only extractor is
+  // never type-checked here — and a stray import of it would fail the build,
+  // because "lib" deliberately omits DOM.
+  "include": ["src", "tsup.config.ts"]
+}

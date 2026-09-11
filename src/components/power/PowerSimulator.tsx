@@ -6,8 +6,9 @@ import {
   roundUpToStep,
   simulateAnnualSaving,
   MIN_RECOMMENDED_POWER_KW,
+  formatCurrency,
+  formatPower,
 } from '../../lib/cnmc';
-import { formatCurrency, formatPower } from '../../utils/formatNumber';
 
 interface PowerSimulatorProps {
   qrParams: QrParameters;

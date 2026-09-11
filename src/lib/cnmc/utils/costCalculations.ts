@@ -129,13 +129,27 @@ export const calculateActualMonths = (startDate: string, endDate?: string): numb
  * @param qrParams - QR parameters from the invoice
  * @returns CostBreakdown object with all cost components
  */
+/**
+ * Whether the QR encodes power prices per day or per year.
+ *
+ * The format differs by tariff type, and the mode is decided once from the
+ * dominant price (the punta price), then applied to both periods:
+ * - F0 (2.0TD estándar): prP1/prP2 in €/kW/día (daily rate, typically < 1)
+ * - A0 (indexada): prP1/prP2 in €/kW/año (annual rate, typically > 20). Note the
+ *   valle annual price can be < 1, so it must NOT be reclassified as daily.
+ *
+ * Exported because it is an inference, not a fact from the invoice: consumers
+ * that present these figures should be able to say which reading they used.
+ *
+ * @returns The basis, or null when the QR carries no power prices at all.
+ */
+export const getPowerPriceBasis = (qrParams: QrParameters): 'daily' | 'annual' | null => {
+  if (qrParams.prP1 === undefined && qrParams.prP2 === undefined) return null;
+  return (qrParams.prP1 ?? 0) > 1 || (qrParams.prP2 ?? 0) > 1 ? 'annual' : 'daily';
+};
+
 export const calculatePowerByPeriod = (qrParams: QrParameters): PowerPeriodCost[] => {
-  // Price format differs by tariff type, and the mode is decided once from the
-  // dominant price (the punta price), then applied to both periods:
-  // - F0 (2.0TD estándar): prP1/prP2 in €/kW/día (daily rate, typically < 1)
-  // - A0 (indexada): prP1/prP2 in €/kW/año (annual rate, typically > 20). Note the
-  //   valle annual price can be < 1, so it must NOT be reclassified as daily.
-  const isAnnual = (qrParams.prP1 ?? 0) > 1 || (qrParams.prP2 ?? 0) > 1;
+  const isAnnual = getPowerPriceBasis(qrParams) === 'annual';
 
   const periods = [
     { period: 'P1' as const, label: 'Punta' as const, power: qrParams.pP1, price: qrParams.prP1 },

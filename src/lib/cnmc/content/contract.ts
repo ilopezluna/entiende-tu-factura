@@ -1,5 +1,5 @@
-import { ContractType, PriceRevisionFrequency } from '../lib/cnmc';
-import { formatNumber } from './formatNumber';
+import { ContractType, PriceRevisionFrequency } from '../types';
+import { formatNumber } from '../format';
 
 export function getContractTypeFromTc(tc: string): ContractType | null {
   const code = tc.charAt(0).toUpperCase();

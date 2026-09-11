@@ -18,9 +18,8 @@ import PowerVerdictCard from '../components/power/PowerVerdictCard';
 import PowerSimulator from '../components/power/PowerSimulator';
 import SavingsMathCard from '../components/power/SavingsMathCard';
 import { Button } from '../components/ui';
-import { QrParameters, analyzePower, POWER_CHANGE_FEE_EUR } from '../lib/cnmc';
+import { QrParameters, analyzePower, POWER_CHANGE_FEE_EUR, formatCurrency } from '../lib/cnmc';
 import { useInvoiceQr } from '../hooks/useInvoiceQr';
-import { formatCurrency } from '../utils/formatNumber';
 import { INVOICEDOWN_POTENCIA_URL } from '../constants';
 
 interface LowerPowerPageProps {

@@ -1,0 +1,19 @@
+{
+  "name": "entiende-tu-factura",
+  "owner": {
+    "name": "Ignacio López Luna",
+    "url": "https://github.com/ilopezluna"
+  },
+  "plugins": [
+    {
+      "name": "factura-luz",
+      "source": "./plugins/factura-luz",
+      "description": "Lee y explica facturas de la luz españolas a partir del QR de la CNMC. Todo en local.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ignacio López Luna",
+        "url": "https://github.com/ilopezluna"
+      }
+    }
+  ]
+}
