@@ -1,6 +1,11 @@
 import React from 'react';
-import { PowerAnalysis, DAYS_PER_YEAR } from '../../lib/cnmc';
-import { formatCurrency, formatNumber, formatPower } from '../../utils/formatNumber';
+import {
+  PowerAnalysis,
+  DAYS_PER_YEAR,
+  formatCurrency,
+  formatNumber,
+  formatPower,
+} from '../../lib/cnmc';
 
 interface SavingsMathCardProps {
   analysis: PowerAnalysis;

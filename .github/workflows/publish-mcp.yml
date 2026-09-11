@@ -1,0 +1,36 @@
+name: Publish MCP server
+
+# Publishes factura-luz-mcp to npm when an mcp-v* tag is pushed, for example:
+#   npm version patch -w factura-luz-mcp
+#   git tag mcp-v0.1.1 && git push origin mcp-v0.1.1
+#
+# Requires an NPM_TOKEN repository secret with publish rights.
+on:
+  push:
+    tags: ['mcp-v*']
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm provenance, which links the published package to this build.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+
+      # Never publish something that does not pass its own tests.
+      - run: npm run typecheck -w factura-luz-mcp
+      - run: npm test -w factura-luz-mcp
+      - run: npm run build -w factura-luz-mcp
+
+      - run: npm publish -w factura-luz-mcp --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

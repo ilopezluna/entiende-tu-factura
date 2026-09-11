@@ -9,7 +9,18 @@
  */
 
 import React, { useMemo } from 'react';
-import { QrParameters, calculateCostBreakdown, CostBreakdown } from '../lib/cnmc';
+import {
+  QrParameters,
+  calculateCostBreakdown,
+  CostBreakdown,
+  calculateBreakdownPercentages,
+  calculatePeriodDays,
+  splitInvoiceAmounts,
+  getPermanenciaStatus,
+  formatCurrency,
+  formatCurrencyPerMonth,
+  formatPercentage,
+} from '../lib/cnmc';
 import {
   Zap,
   Lightbulb,
@@ -22,7 +33,6 @@ import {
   ShieldCheck,
   Clock,
 } from 'lucide-react';
-import { formatCurrency, formatCurrencyPerMonth, formatPercentage } from '../utils/formatNumber';
 import ContractDetails from './ContractDetails';
 import {
   INVOICEDOWN_URL,
@@ -95,43 +105,22 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
   const costBreakdown = useMemo<CostBreakdown>(() => calculateCostBreakdown(qrParams), [qrParams]);
 
   // Compute breakdown percentages for the visual chart
-  const breakdownPercentages = useMemo(() => {
-    if (!costBreakdown || costBreakdown.totalMonthlyCost <= 0) {
-      return { energy: 45, power: 30, taxes: 25 }; // Fallback
-    }
-    const total = costBreakdown.totalMonthlyCost;
-    const energy = (costBreakdown.monthlyEnergyCost / total) * 100;
-    const power = (costBreakdown.monthlyPowerCost / total) * 100;
-    const taxes =
-      ((costBreakdown.electricityTax + costBreakdown.equipmentFee + costBreakdown.iva) / total) *
-      100;
-    return {
-      energy: Math.round(energy),
-      power: Math.round(power),
-      taxes: Math.round(taxes),
-    };
-  }, [costBreakdown]);
+  const breakdownPercentages = useMemo(
+    () => calculateBreakdownPercentages(costBreakdown),
+    [costBreakdown],
+  );
 
   // Actual invoice total (with taxes) vs the averaged monthly estimate.
   const invoiceTotal = qrParams.imp ?? 0;
   const consumptionMonths = Math.round(costBreakdown.actualMonths);
-  const periodDays = useMemo(() => {
-    if (!qrParams.iniF || !qrParams.finF) return null;
-    const start = new Date(qrParams.iniF).getTime();
-    const end = new Date(qrParams.finF).getTime();
-    if (isNaN(start) || isNaN(end)) return null;
-    const days = Math.round((end - start) / 86_400_000);
-    return days > 0 ? days : null;
-  }, [qrParams.iniF, qrParams.finF]);
+  const periodDays = useMemo(() => calculatePeriodDays(qrParams), [qrParams]);
 
   // Per-category amounts billed in THIS invoice (pre-tax for power/energy; the rest
   // — taxes, equipment rental, social bonus… — is the remainder up to the total).
-  const powerInvoice = qrParams.impPot > 0 ? qrParams.impPot : null;
-  const energyInvoice = qrParams.impEner && qrParams.impEner > 0 ? qrParams.impEner : null;
-  const otherInvoice =
-    invoiceTotal > 0
-      ? Math.max(invoiceTotal - (qrParams.impPot || 0) - (qrParams.impEner || 0), 0)
-      : null;
+  const invoiceSplit = useMemo(() => splitInvoiceAmounts(qrParams), [qrParams]);
+  const powerInvoice = invoiceSplit.power;
+  const energyInvoice = invoiceSplit.energy;
+  const otherInvoice = invoiceSplit.other;
 
   // Breakdown of the averaged monthly estimate.
   const estimateItems: BreakdownItem[] = [
@@ -161,8 +150,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
   ];
 
   // Breakdown of THIS invoice (proportions over the actual total).
-  const invoicePct = (value: number) =>
-    invoiceTotal > 0 ? Math.round((value / invoiceTotal) * 100) : 0;
   const invoiceItems: BreakdownItem[] = [];
   if (energyInvoice !== null) {
     invoiceItems.push({
@@ -170,7 +157,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
       caption: 'Lo que cuesta generar la electricidad que usas.',
       color: 'bg-blue-500',
       amount: formatCurrency(energyInvoice),
-      percentage: invoicePct(energyInvoice),
+      percentage: invoiceSplit.percentages.energy,
     });
   }
   if (powerInvoice !== null) {
@@ -179,7 +166,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
       caption: 'El coste fijo por tener la luz disponible en tu casa.',
       color: 'bg-sky-400',
       amount: formatCurrency(powerInvoice),
-      percentage: invoicePct(powerInvoice),
+      percentage: invoiceSplit.percentages.power,
     });
   }
   if (otherInvoice !== null) {
@@ -188,23 +175,17 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
       caption: 'Impuesto eléctrico, IVA, alquiler del contador y otros conceptos.',
       color: 'bg-emerald-400',
       amount: formatCurrency(otherInvoice),
-      percentage: invoicePct(otherInvoice),
+      percentage: invoiceSplit.percentages.taxes,
     });
   }
 
   const permanenciaStatus = useMemo(() => {
-    const finPen = qrParams.finPen;
-    if (!finPen || finPen === '0000-00-00') return null;
-
-    const endDate = new Date(finPen + 'T00:00:00');
-    if (isNaN(endDate.getTime())) return null;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const status = getPermanenciaStatus(qrParams);
+    if (!status) return null;
 
     return {
-      isActive: endDate > today,
-      formattedDate: endDate.toLocaleDateString('es-ES', {
+      isActive: status.isActive,
+      formattedDate: new Date(status.endDate + 'T00:00:00').toLocaleDateString('es-ES', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',

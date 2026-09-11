@@ -1,7 +1,7 @@
 import React from 'react';
-import { QrParameters, calculatePowerByPeriod } from '../lib/cnmc';
-import { FileText, Calendar, Leaf, Tag, RefreshCw, Sun, CloudSun, Moon, Clock } from 'lucide-react';
 import {
+  QrParameters,
+  calculatePowerByPeriod,
   getContractTypeFromTc,
   getContractTypeLabel,
   getContractTypeExplanation,
@@ -9,8 +9,11 @@ import {
   getRevisionFrequencyLabel,
   formatPricePerKwh,
   isSinglePriceContract,
-} from '../utils/contractHelpers';
-import { formatPower, formatCurrencyPerMonth, formatNumber } from '../utils/formatNumber';
+  formatPower,
+  formatCurrencyPerMonth,
+  formatNumber,
+} from '../lib/cnmc';
+import { FileText, Calendar, Leaf, Tag, RefreshCw, Sun, CloudSun, Moon, Clock } from 'lucide-react';
 
 interface ContractDetailsProps {
   qrParams: QrParameters;
