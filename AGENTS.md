@@ -63,10 +63,18 @@ Hay tres artefactos que declaran la misma versión y tienen que moverse juntos:
 - Valida `server.json` contra el registro antes de etiquetar una release:
   `cd mcp && mcp-publisher validate`.
 - **La publicación no usa secretos.** npm publica por _trusted publishing_ y el MCP
-  Registry por OIDC, los dos con el token de GitHub del propio workflow. Por eso el job
-  necesita `id-token: write`, el nombre tiene que vivir bajo `io.github.ilopezluna/`, y
+  Registry por OIDC, los dos con el token de GitHub del propio workflow. Por eso los jobs
+  necesitan `id-token: write`, el nombre tiene que vivir bajo `io.github.ilopezluna/`, y
   la configuración de npm está atada al nombre de fichero `publish-mcp.yml`: si renombras
   el workflow, hay que actualizarla en npmjs.com o la publicación fallará.
-- El workflow actualiza npm antes de publicar. Node 22.20.0 trae npm 10.9.3 y el trusted
-  publishing necesita 11.5.1 o superior; así `.nvmrc` sigue siendo la única fuente de
-  verdad para la versión de Node.
+- **La etiqueta no publica nada en vivo.** El trusted publisher tiene permiso de
+  _staging_, así que el workflow hace `npm stage publish` y la versión se queda esperando
+  a que alguien la apruebe con 2FA (en npmjs.com, pestaña Staged Packages, o con
+  `npm stage approve <stage-id>`).
+- El alta en el MCP Registry es un job aparte, con `environment: release`, para que el
+  registro no anuncie nunca una versión que todavía está sin aprobar en npm. **Ese entorno
+  tiene que tener un revisor obligatorio** en los ajustes del repositorio; si no lo tiene,
+  GitHub lo ejecuta sin pararse y la barrera no sirve de nada.
+- El workflow actualiza npm antes de publicar. Node 22.20.0 trae npm 10.9.3, el trusted
+  publishing necesita 11.5.1 y el staged publishing 11.15.0; así `.nvmrc` sigue siendo la
+  única fuente de verdad para la versión de Node.
