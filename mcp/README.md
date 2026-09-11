@@ -23,6 +23,24 @@ falta para comparar ofertas, así que tenlo en cuenta según qué agente uses.
 
 ## Instalación
 
+### Opción 1: como plugin de Claude Code (recomendada)
+
+```bash
+claude plugin marketplace add ilopezluna/entiende-tu-factura
+claude plugin install factura-luz@entiende-tu-factura
+```
+
+Además del servidor, esto te instala el comando `/entender`, que lee la factura y te la
+explica de una vez.
+
+### Opción 2: como servidor MCP suelto
+
+```bash
+claude mcp add factura-luz -- npx -y factura-luz-mcp
+```
+
+### Opción 3: en otro agente
+
 Añade esto a la configuración MCP de tu agente:
 
 ```json
@@ -36,17 +54,22 @@ Añade esto a la configuración MCP de tu agente:
 }
 ```
 
-En Claude Code basta con:
-
-```bash
-claude mcp add factura-luz -- npx -y factura-luz-mcp
-```
-
 Requiere Node.js 20 o superior.
+
+También está listado en el
+[MCP Registry](https://registry.modelcontextprotocol.io) como
+`io.github.ilopezluna/factura-luz`, así que los clientes que soporten descubrimiento
+pueden encontrarlo por su nombre.
 
 ## Uso
 
-Pídeselo a tu agente en lenguaje natural:
+Si instalaste el plugin, el atajo es:
+
+```
+/entender ~/Descargas/factura-enero.pdf
+```
+
+O pídeselo a tu agente en lenguaje natural:
 
 > Explícame la factura que tengo en ~/Descargas/factura-enero.pdf
 

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "factura-luz": {
+      "command": "npx",
+      "args": ["-y", "factura-luz-mcp"]
+    }
+  }
+}

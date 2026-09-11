@@ -49,3 +49,18 @@ servidor— pero se concreta distinto en cada uno.
   de Node en `mcp/src/extractNode.ts`: una sola fuente para cada plataforma.
 - El contenido en español (etiquetas, explicaciones, glosario) vive en
   `src/lib/cnmc/content/`, no en los componentes, para que la web y el agente digan lo mismo.
+
+## 4. Distribución del servidor MCP
+
+Hay tres artefactos que declaran la misma versión y tienen que moverse juntos:
+`mcp/package.json`, `mcp/server.json` y `plugins/factura-luz/.claude-plugin/plugin.json`.
+
+- `mcp/package.json` lleva `mcpName`, que **debe** coincidir con el campo `name` de
+  `mcp/server.json`. El MCP Registry rechaza la publicación si no cuadran.
+- El workflow de publicación sincroniza la versión de `server.json` desde `package.json`,
+  así que basta con subir la de `package.json` (`npm version patch -w factura-luz-mcp`).
+  La del plugin sí hay que subirla a mano.
+- Valida `server.json` contra el registro antes de etiquetar una release:
+  `cd mcp && mcp-publisher validate`.
+- El registro autentica con el token OIDC del workflow, no con un secreto: por eso el job
+  necesita `id-token: write` y el nombre tiene que vivir bajo `io.github.ilopezluna/`.

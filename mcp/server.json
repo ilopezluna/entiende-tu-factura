@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ilopezluna/factura-luz",
+  "description": "Lee y explica facturas de la luz españolas (QR de la CNMC). Todo en local.",
+  "repository": {
+    "url": "https://github.com/ilopezluna/entiende-tu-factura",
+    "source": "github",
+    "subfolder": "mcp"
+  },
+  "version": "0.1.0",
+  "websiteUrl": "https://ilopezluna.github.io/entiende-tu-factura/",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "factura-luz-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

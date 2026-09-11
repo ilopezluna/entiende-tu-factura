@@ -23,6 +23,13 @@ misma lógica: [`factura-luz-mcp`](mcp/README.md). Se ejecuta en local, así que
 tampoco sale de tu ordenador.
 
 ```bash
+claude plugin marketplace add ilopezluna/entiende-tu-factura
+claude plugin install factura-luz@entiende-tu-factura
+```
+
+O, si prefieres solo el servidor MCP sin el comando `/entender`:
+
+```bash
 claude mcp add factura-luz -- npx -y factura-luz-mcp
 ```
 
