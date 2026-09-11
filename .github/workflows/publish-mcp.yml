@@ -5,9 +5,12 @@ name: Publish MCP server
 #   npm version patch -w factura-luz-mcp
 #   git tag mcp-v0.1.1 && git push origin mcp-v0.1.1
 #
-# npm publishing needs an NPM_TOKEN repository secret. The MCP Registry needs no
-# secret: it authenticates with this workflow's GitHub OIDC token, which is also
-# what proves ownership of the io.github.ilopezluna/* namespace.
+# No secrets are needed. Both registries authenticate with this workflow's
+# GitHub OIDC token:
+#   - npm, via trusted publishing, configured on the package settings page and
+#     pinned to this repository and this workflow filename.
+#   - The MCP Registry, whose OIDC login is also what proves ownership of the
+#     io.github.ilopezluna/* namespace.
 on:
   push:
     tags: ['mcp-v*']
@@ -18,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Required both for npm provenance and for MCP Registry OIDC login.
+      # Required for npm trusted publishing and for MCP Registry OIDC login.
       id-token: write
     steps:
       - uses: actions/checkout@v7
@@ -27,6 +30,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           registry-url: https://registry.npmjs.org
+
+      # Node 22.20.0 ships npm 10.9.3, and trusted publishing needs 11.5.1 or
+      # later. Upgrading here keeps .nvmrc as the single source of truth for the
+      # Node version the project is built and tested against.
+      - run: npm install -g npm@latest
+
       - run: npm ci
 
       # Never publish something that does not pass its own tests.
@@ -45,9 +54,9 @@ jobs:
           mv server.tmp server.json
           echo "Publishing version $VERSION"
 
-      - run: npm publish -w factura-luz-mcp --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # No NODE_AUTH_TOKEN and no --provenance: trusted publishing supplies a
+      # short-lived credential and attaches provenance on its own.
+      - run: npm publish -w factura-luz-mcp --access public
 
       - name: Install mcp-publisher
         run: |
