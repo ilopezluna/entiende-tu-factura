@@ -65,7 +65,7 @@ jobs:
         run: npm stage publish --access public
 
       # Carried to the next job, which runs after the staged version is approved.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: server-json
           path: mcp/server.json
@@ -85,7 +85,7 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: server-json
           path: mcp
