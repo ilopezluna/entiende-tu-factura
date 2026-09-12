@@ -1,7 +1,7 @@
 {
   "name": "factura-luz-mcp",
   "mcpName": "io.github.ilopezluna/factura-luz",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Servidor MCP que lee y explica facturas de la luz españolas (QR de la CNMC). Funciona en local: la factura no sale de tu ordenador.",
   "keywords": [
