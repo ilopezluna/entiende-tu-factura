@@ -10,6 +10,7 @@
 import {
   CONCEPT_IDS,
   ContractType,
+  InvoiceType,
   DAYS_PER_YEAR,
   ELECTRICITY_TAX_RATE,
   GLOSSARY,
@@ -22,17 +23,73 @@ import {
   getContractTypeCategory,
   getContractTypeExplanation,
   getContractTypeLabel,
+  getInvoiceTypeExplanation,
+  getInvoiceTypeLabel,
   isSinglePriceContract,
 } from '../../src/lib/cnmc';
 
 export const CONTRACT_TYPE_IDS = Object.values(ContractType);
 
+export const BOE_URL = 'https://www.boe.es/diario_boe/txt.php?id=BOE-A-2022-16989';
+
+/**
+ * The worked example from Annex I, reproduced as printed.
+ *
+ * It is quoted verbatim on purpose, defect included: the URL in the official
+ * document lost the decimal separator of prP1 and prP2, which Table 4 of that
+ * same annex gives as 26.164043 and 1.143132. An agent that used it as a
+ * reference for parsing would read two nonsensical prices, so the corrected form
+ * is published next to it and `resources.test.ts` pins both.
+ */
+export const SPEC_EXAMPLE_URL_AS_PRINTED =
+  'https://comparador.cnmc.gob.es/comparador/QRE?cp=28001&pP1=3.3&pP2=3.3&caP1=1298&caP2=1189' +
+  '&caP3=2178&iniA=2021-09-03&tc=E0&finContrato=2023-06-30&tf=N&imp=151.62&cfP1=112&cfP2=94' +
+  '&cfP3=180&iniF=2022-07-31&finF=2022-08-31&impSA=5.50&impOtrosConIE=0&impOtrosSinIE=0.83' +
+  '&com=R2-000&cups=ES0000000002054081TS&pmaxP1=3.0&pmaxP2=3.3&fFact=2022-09-05&finBS=1.14' +
+  '&ajuste=65.40&impPot=7.65&impEner=85.18&prP1=26164043&prP2=1143132&prE1=0.263547' +
+  '&prE2=0.215858&prE3=0.196532&verde=1';
+
+export const SPEC_EXAMPLE_URL_CORRECTED = SPEC_EXAMPLE_URL_AS_PRINTED.replace(
+  'prP1=26164043&prP2=1143132',
+  'prP1=26.164043&prP2=1.143132',
+);
+
 export const qrFieldsResource = () => ({
-  source: 'Resolución del BOE de 6 de octubre de 2022, Tabla 1',
+  source: 'Resolución de la CNMC de 6 de octubre de 2022, Anexo I, Tabla 1',
+  source_url: BOE_URL,
   description:
     'Campos codificados en el QR de las facturas eléctricas españolas. La URL del QR tiene la forma ' +
     'https://comparador.cnmc.gob.es/comparador/QRE?<campo>=<valor>&...',
+  required_means:
+    'required: true son los campos con la casilla «Obligatorio» marcada en la Tabla 1, presentes en ' +
+    'toda factura. required: false NO quiere decir opcional: la mayoría son obligatorios salvo en ' +
+    'facturas anuladoras, rectificadoras, complementarias o regularizadoras. Que falte uno es algo ' +
+    'que merece mencionarse, no lo normal.',
   fields: Object.entries(QR_FIELDS).map(([field, doc]) => ({ field, ...doc })),
+  invoice_types: {
+    field: 'tf',
+    source: 'Anexo I, Tabla 2',
+    note:
+      'Salvo en las normales, los importes ajustan facturas anteriores: no son el coste de un ' +
+      'periodo de suministro y no se deben promediar como tal.',
+    types: (Object.values(InvoiceType) as InvoiceType[]).map((code) => ({
+      code,
+      label: getInvoiceTypeLabel(code),
+      explanation: getInvoiceTypeExplanation(code),
+    })),
+  },
+  example: {
+    source: 'Anexo I, Tabla 4',
+    description:
+      'El ejemplo resuelto de la Resolución, para ver la forma de una URL completa con todos los ' +
+      'parámetros.',
+    url_as_printed: SPEC_EXAMPLE_URL_AS_PRINTED,
+    url_corrected: SPEC_EXAMPLE_URL_CORRECTED,
+    known_defect:
+      'La URL publicada en el BOE perdió el separador decimal de prP1 y prP2. La Tabla 4 de ese ' +
+      'mismo anexo les da los valores 26,164043 y 1,143132. Usa url_corrected si necesitas un ' +
+      'ejemplo que se pueda parsear; url_as_printed queda para poder contrastar con la fuente.',
+  },
 });
 
 export const glossaryResource = () => ({

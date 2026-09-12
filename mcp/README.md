@@ -108,15 +108,24 @@ texto pensado para leer está en español.
 
 ## Recursos
 
-| Recurso                 | Contenido                                                            |
-| ----------------------- | -------------------------------------------------------------------- |
-| `cnmc://qr-fields`      | Todos los campos del QR de la CNMC, con unidades y particularidades. |
-| `cnmc://glossary`       | Glosario de conceptos de la factura en lenguaje llano.               |
-| `cnmc://contract-types` | Tipos de contrato (PVPC, fija, indexada, tarifa plana, flexible).    |
-| `cnmc://power-method`   | Cómo calcular si puedes bajar la potencia y cuánto ahorrarías.       |
+| Recurso                 | Contenido                                                              |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `cnmc://qr-fields`      | Los 43 campos del QR, con unidades, obligatoriedad y particularidades. |
+| `cnmc://glossary`       | Glosario de conceptos de la factura en lenguaje llano.                 |
+| `cnmc://contract-types` | Tipos de contrato (PVPC, fija, indexada, tarifa plana, flexible).      |
+| `cnmc://power-method`   | Cómo calcular si puedes bajar la potencia y cuánto ahorrarías.         |
 
 Y un prompt, `entender-factura`, que guía al agente desde la ruta del fichero hasta una
 explicación completa en español.
+
+`cnmc://qr-fields` es una transcripción de la [Resolución de la CNMC de 6 de octubre de
+2022](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2022-16989), Anexo I, y lleva
+además las Tablas 2 y 4: los tipos de factura y el ejemplo resuelto. Un test fija los 43
+campos contra esa tabla para que no se desvíen de la norma sin que nadie se entere.
+
+Ojo con `required`: `true` son los campos con la casilla «Obligatorio» marcada. `false`
+no significa opcional, porque la mayoría son obligatorios salvo en facturas anuladoras,
+rectificadoras, complementarias o regularizadoras.
 
 ## Deducciones
 
