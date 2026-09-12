@@ -65,22 +65,16 @@ describe('presentInvoice', () => {
 
   it('takes the annual window from the dates when they are consistent', () => {
     expect(report.consumption.annual_window_source).toBe('dates');
-    expect(report.warnings).toEqual([]);
+    expect(report.inferences).toEqual([]);
   });
 
-  it('writes a Spanish summary carrying the real figures', () => {
-    expect(report.summary_es).toContain('Fija 3 periodos');
-    expect(report.summary_es).toContain('120,55€');
-    expect(report.summary_es).toContain('136,95€');
-  });
-
-  it('hands back the parsed fields so analysis tools can skip re-reading the file', () => {
+  it('hands back the parsed fields so later calls can skip re-reading the file', () => {
     expect(report.invoice.cups).toBe('ES1234567890AZ');
     expect(report.invoice.pP1).toBe(4.6);
   });
 });
 
-describe('presentInvoice warnings', () => {
+describe('presentInvoice inferences', () => {
   const withParams = (overrides: Partial<QrParameters>) =>
     presentInvoice({ ...parseQrParameters(CNMC_URL), ...overrides });
 
@@ -88,28 +82,38 @@ describe('presentInvoice warnings', () => {
     // iniA set to the billing period start, the failure mode this heuristic exists for.
     const suspect = withParams({ iniA: '2025-11-28', cfP1: 90, cfP2: 55, cfP3: 100 });
     expect(suspect.consumption.annual_window_source).toBe('consumption');
-    expect(suspect.warnings.join(' ')).toContain('no cuadra con el consumo facturado');
+
+    const [inference] = suspect.inferences;
+    expect(inference.id).toBe('annual_window_estimated');
+    expect(inference.field).toBe('consumption.annual_window_months');
+    expect(inference.inferred).toBe(suspect.consumption.annual_window_months);
+    expect(inference.instead_of).toMatchObject({ iniA: '2025-11-28' });
+    expect(inference.affects).toContain('monthly_estimate');
   });
 
   it('flags power prices read as annual rather than daily', () => {
     const indexed = withParams({ prP1: 36.5, prP2: 0.9 });
     expect(indexed.power.price_basis).toBe('annual');
-    expect(indexed.warnings.join(' ')).toContain('€/kW/año');
-  });
 
-  it('flags a QR with no power prices at all', () => {
-    const noPrices = withParams({ prP1: undefined, prP2: undefined });
-    expect(noPrices.power.price_basis).toBeNull();
-    expect(noPrices.warnings.join(' ')).toContain('no incluye precios de potencia');
-  });
-
-  it('flags a missing maximum demanded power', () => {
-    const noMax = withParams({ pmaxP1: 0, pmaxP2: 0 });
-    expect(noMax.warnings.join(' ')).toContain('no trae la potencia máxima demandada');
+    const [inference] = indexed.inferences;
+    expect(inference.id).toBe('power_price_annual_basis');
+    expect(inference.instead_of).toMatchObject({ prP1: 36.5, read_as: '€/kW/año' });
+    expect(inference.inferred).toEqual(indexed.prices.power_eur_per_kw_day);
   });
 
   it('flags an estimate derived from the total instead of unit prices', () => {
     const noEnergyPrices = withParams({ prE1: undefined, prE2: undefined, prE3: undefined });
-    expect(noEnergyPrices.warnings.join(' ')).toContain('no incluye precios de energía');
+    expect(noEnergyPrices.inferences.map((i) => i.id)).toContain('monthly_estimate_from_total');
+  });
+
+  it('stays silent about fields the QR simply does not carry', () => {
+    // A null is visible to the agent on its own; restating it would be prose, not provenance.
+    const noPrices = withParams({ prP1: undefined, prP2: undefined });
+    expect(noPrices.power.price_basis).toBeNull();
+    expect(noPrices.inferences.map((i) => i.id)).not.toContain('power_price_annual_basis');
+
+    const noMax = withParams({ pmaxP1: 0, pmaxP2: 0 });
+    expect(noMax.power.max_demanded_kw).toEqual({ p1: null, p2: null });
+    expect(noMax.inferences).toEqual([]);
   });
 });

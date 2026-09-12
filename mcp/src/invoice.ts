@@ -2,8 +2,8 @@
  * Resolves the three ways an agent can hand over an invoice.
  *
  * Accepting a previously parsed `invoice` object matters: it lets an agent read
- * a file once and then call the analysis tools repeatedly without re-decoding
- * the PDF, which is by far the slowest step.
+ * a file once and then ask about it repeatedly without re-decoding the PDF,
+ * which is by far the slowest step.
  */
 
 import { isAbsolute, resolve } from 'node:path';

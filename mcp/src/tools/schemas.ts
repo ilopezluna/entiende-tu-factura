@@ -1,8 +1,8 @@
 /**
  * Zod schemas for the tool inputs.
  *
- * Every analysis tool accepts the same three input shapes, so the shared parts
- * are defined once here.
+ * Every tool that takes an invoice accepts the same three input shapes, so the
+ * shared parts are defined once here.
  */
 
 import { z } from 'zod';
@@ -26,8 +26,8 @@ export const invoiceInputShape = {
     .record(z.unknown())
     .optional()
     .describe(
-      'The `invoice` object returned by a previous read_invoice call. Pass this to analyse the same ' +
-        'invoice again without re-reading the file, which is much faster.',
+      'The `invoice` object returned by a previous read_invoice call. Pass this to ask about the ' +
+        'same invoice again without re-reading the file, which is much faster.',
     ),
 };
 

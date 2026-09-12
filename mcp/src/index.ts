@@ -10,14 +10,13 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 
-import { contractTypeTable, glossaryResource, qrFieldsResource } from './resources.js';
 import {
-  analyzePowerTool,
-  explainConceptTool,
-  listConceptsTool,
-  readInvoiceTool,
-  simulatePowerChangeTool,
-} from './tools/index.js';
+  contractTypeTable,
+  glossaryResource,
+  powerMethodResource,
+  qrFieldsResource,
+} from './resources.js';
+import { explainConceptTool, listConceptsTool, readInvoiceTool } from './tools/index.js';
 
 const server = new McpServer({
   name: 'factura-luz',
@@ -47,13 +46,7 @@ const guard = <A extends Record<string, any>>(handler: (args: A) => Promise<any>
   };
 };
 
-for (const tool of [
-  readInvoiceTool,
-  analyzePowerTool,
-  simulatePowerChangeTool,
-  explainConceptTool,
-  listConceptsTool,
-]) {
+for (const tool of [readInvoiceTool, explainConceptTool, listConceptsTool]) {
   server.registerTool(tool.name, tool.config as any, guard(tool.handler as any) as any);
 }
 
@@ -85,6 +78,22 @@ server.registerResource(
     mimeType: 'application/json',
   },
   async () => jsonResource('cnmc://glossary', glossaryResource()),
+);
+
+server.registerResource(
+  'power-method',
+  'cnmc://power-method',
+  {
+    title: 'Cómo calcular si se puede bajar la potencia',
+    description:
+      'The recipe for deciding whether the contracted power can be lowered and what that would ' +
+      'save: the safety margin, the rounding to contractable steps, the order of the tax cascade ' +
+      'and the one-off change fee. Read this before answering a power question from read_invoice ' +
+      'data, so your figures match the ones the project website shows. Includes a worked example ' +
+      'to check yourself against.',
+    mimeType: 'application/json',
+  },
+  async () => jsonResource('cnmc://power-method', powerMethodResource()),
 );
 
 server.registerResource(
@@ -123,14 +132,17 @@ server.registerPrompt(
             `1. Llama a read_invoice con file_path "${file_path}".`,
             '2. Cuéntame qué tarifa tengo y qué significa, cuánto he pagado y en qué se va el dinero',
             '   (energía, potencia, impuestos), con cifras concretas en euros.',
-            '3. Llama a analyze_power para decirme si puedo bajar la potencia contratada y cuánto',
-            '   ahorraría al año.',
+            '3. Lee el recurso cnmc://power-method y aplica esa receta a los datos del paso 1 para',
+            '   decirme si puedo bajar la potencia contratada y cuánto ahorraría al año. Sigue el',
+            '   margen, el redondeo y el orden de los impuestos tal como los define el recurso.',
             '4. Avísame de cualquier cosa relevante: permanencia, fin de contrato, descuentos que',
             '   caducan, o datos que falten en la factura.',
-            '5. Traslada literalmente los avisos del campo warnings si los hay, para que sepa qué',
-            '   partes son estimaciones.',
+            '5. Si el campo inferences trae algo, cuéntamelo con tus palabras: son cifras que el',
+            '   servidor ha deducido, no leído de la factura, y quiero saber qué partes son',
+            '   estimaciones antes de fiarme de ellas.',
             '',
-            'No inventes cifras: usa solo las que devuelvan las herramientas.',
+            'No inventes cifras. Las de la factura salen de read_invoice tal cual; las de potencia,',
+            'de aplicar el método del recurso a esas mismas cifras, nunca de estimar a ojo.',
           ].join('\n'),
         },
       },
