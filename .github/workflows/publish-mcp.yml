@@ -37,7 +37,11 @@ jobs:
       # Node 22.20.0 ships npm 10.9.3. Trusted publishing needs 11.5.1 and
       # staged publishing needs 11.15.0, so npm is upgraded here and .nvmrc stays
       # the single source of truth for the Node version we build and test against.
-      - run: npm install -g npm@12
+      #
+      # Pinned to major 11, not 12: npm 12 requires Node ^22.22.2 and .nvmrc is on
+      # 22.20.0, so `npm@12` fails with EBADENGINE before doing anything. Latest
+      # 11.x clears the 11.15.0 bar. Moving to 12 means bumping .nvmrc first.
+      - run: npm install -g npm@11
 
       - run: npm ci
 

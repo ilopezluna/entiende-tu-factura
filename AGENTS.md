@@ -79,4 +79,6 @@ El `version` que el servidor anuncia por el protocolo no cuenta: lo toma de
   GitHub lo ejecuta sin pararse y la barrera no sirve de nada.
 - El workflow actualiza npm antes de publicar. Node 22.20.0 trae npm 10.9.3, el trusted
   publishing necesita 11.5.1 y el staged publishing 11.15.0; así `.nvmrc` sigue siendo la
-  única fuente de verdad para la versión de Node.
+  única fuente de verdad para la versión de Node. El pin es a la major **11**: npm 12 pide
+  Node `^22.22.2` y falla con EBADENGINE contra el 22.20.0 del `.nvmrc`. Para saltar a npm
+  12 hay que subir antes la versión de Node.
