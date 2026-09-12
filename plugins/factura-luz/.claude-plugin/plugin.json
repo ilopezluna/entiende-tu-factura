@@ -1,7 +1,7 @@
 {
   "name": "factura-luz",
   "displayName": "Factura de la luz",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Lee y explica facturas de la luz españolas a partir del código QR de la CNMC. Se ejecuta en local: la factura no sale de tu ordenador.",
   "author": {
     "name": "Ignacio López Luna",

@@ -54,6 +54,8 @@ servidor— pero se concreta distinto en cada uno.
 
 Hay tres artefactos que declaran la misma versión y tienen que moverse juntos:
 `mcp/package.json`, `mcp/server.json` y `plugins/factura-luz/.claude-plugin/plugin.json`.
+El `version` que el servidor anuncia por el protocolo no cuenta: lo toma de
+`mcp/package.json` y tsup lo inlina al construir, así que no hay que tocarlo.
 
 - `mcp/package.json` lleva `mcpName`, que **debe** coincidir con el campo `name` de
   `mcp/server.json`. El MCP Registry rechaza la publicación si no cuadran.

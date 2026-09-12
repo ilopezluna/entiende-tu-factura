@@ -10,6 +10,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 
+import { version as packageVersion } from '../package.json';
+
 import {
   contractTypeTable,
   glossaryResource,
@@ -20,7 +22,10 @@ import { explainConceptTool, listConceptsTool, readInvoiceTool } from './tools/i
 
 const server = new McpServer({
   name: 'factura-luz',
-  version: '0.1.0',
+  // Taken from package.json rather than written out again: tsup inlines it at
+  // build time, so the version announced over the protocol cannot drift from the
+  // one published to npm.
+  version: packageVersion,
 });
 
 /**
