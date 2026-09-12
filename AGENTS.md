@@ -52,8 +52,10 @@ servidor— pero se concreta distinto en cada uno.
 
 ## 4. Distribución del servidor MCP
 
-Hay tres artefactos que declaran la misma versión y tienen que moverse juntos:
-`mcp/package.json`, `mcp/server.json` y `plugins/factura-luz/.claude-plugin/plugin.json`.
+Hay cuatro artefactos que declaran la misma versión y tienen que moverse juntos:
+`mcp/package.json`, `mcp/server.json`, `plugins/factura-luz/.claude-plugin/plugin.json` y
+la entrada del plugin en `.claude-plugin/marketplace.json`. Esta última es fácil de
+olvidar porque vive en la raíz y no dentro del plugin.
 El `version` que el servidor anuncia por el protocolo no cuenta: lo toma de
 `mcp/package.json` y tsup lo inlina al construir, así que no hay que tocarlo.
 
@@ -61,7 +63,7 @@ El `version` que el servidor anuncia por el protocolo no cuenta: lo toma de
   `mcp/server.json`. El MCP Registry rechaza la publicación si no cuadran.
 - El workflow de publicación sincroniza la versión de `server.json` desde `package.json`,
   así que basta con subir la de `package.json` (`npm version patch -w factura-luz-mcp`).
-  La del plugin sí hay que subirla a mano.
+  La del plugin y la del marketplace sí hay que subirlas a mano.
 - Valida `server.json` contra el registro antes de etiquetar una release:
   `cd mcp && mcp-publisher validate`.
 - **La publicación no usa secretos.** npm publica por _trusted publishing_ y el MCP

@@ -38,10 +38,13 @@ jobs:
       # staged publishing needs 11.15.0, so npm is upgraded here and .nvmrc stays
       # the single source of truth for the Node version we build and test against.
       #
-      # Pinned to major 11, not 12: npm 12 requires Node ^22.22.2 and .nvmrc is on
-      # 22.20.0, so `npm@12` fails with EBADENGINE before doing anything. Latest
-      # 11.x clears the 11.15.0 bar. Moving to 12 means bumping .nvmrc first.
-      - run: npm install -g npm@11
+      # Pinned to an exact version, not a range: `npm@12` used to work here and
+      # broke with EBADENGINE when npm 12 raised its floor to Node ^22.22.2, with
+      # no change on our side. A range would let that happen again, and this
+      # workflow only runs at release time, so the break surfaces at the worst
+      # moment. 11.19.1 asks for `^20.17.0 || >=22.9.0` and clears the 11.15.0
+      # that staged publishing needs. Moving to npm 12 means bumping .nvmrc first.
+      - run: npm install -g npm@11.19.1
 
       - run: npm ci
 
