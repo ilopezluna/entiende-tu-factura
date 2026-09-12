@@ -77,17 +77,26 @@ O pídeselo a tu agente en lenguaje natural:
 
 > ¿Y si la dejo en 3 kW?
 
+## Qué hace el servidor y qué hace tu agente
+
+El servidor se ocupa de las dos cosas que tu agente no puede hacer solo: **sacar** los
+datos del QR de la CNMC que hay dentro del PDF, y **decir qué significa** cada campo.
+Las cuentas las hace el agente, con los datos ya extraídos.
+
+Por eso no hay herramientas de tipo calculadora. Las preguntas de arriba se siguen
+respondiendo igual de bien: el agente lee la factura, lee el recurso
+`cnmc://power-method` y aplica esa receta. Como la receta es la misma que usa la web
+del proyecto, las cifras coinciden con las que verías allí.
+
 ## Herramientas
 
-| Herramienta             | Para qué sirve                                                                         |
-| ----------------------- | -------------------------------------------------------------------------------------- |
-| `read_invoice`          | Lee la factura entera: contrato, potencia, consumo, precios, importes y media mensual. |
-| `analyze_power`         | Dice si puedes bajar la potencia contratada y cuánto ahorrarías al año.                |
-| `simulate_power_change` | Calcula el ahorro para una potencia concreta que tú propongas.                         |
-| `explain_concept`       | Explica un concepto de la factura, con tus propias cifras si le pasas la factura.      |
-| `list_concepts`         | Lista los conceptos que `explain_concept` sabe explicar.                               |
+| Herramienta       | Para qué sirve                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| `read_invoice`    | Lee la factura entera: contrato, potencia, consumo, precios, importes y media mensual. |
+| `explain_concept` | Explica un concepto de la factura, con tus propias cifras si le pasas la factura.      |
+| `list_concepts`   | Lista los conceptos que `explain_concept` sabe explicar.                               |
 
-Todas las herramientas de análisis aceptan la factura de tres formas:
+`read_invoice` y `explain_concept` aceptan la factura de tres formas:
 
 - `file_path`: ruta al PDF o imagen (PNG, JPG, WEBP) en tu ordenador.
 - `qr_url`: la URL del comparador de la CNMC, si el QR ya está decodificado.
@@ -104,22 +113,31 @@ texto pensado para leer está en español.
 | `cnmc://qr-fields`      | Todos los campos del QR de la CNMC, con unidades y particularidades. |
 | `cnmc://glossary`       | Glosario de conceptos de la factura en lenguaje llano.               |
 | `cnmc://contract-types` | Tipos de contrato (PVPC, fija, indexada, tarifa plana, flexible).    |
+| `cnmc://power-method`   | Cómo calcular si puedes bajar la potencia y cuánto ahorrarías.       |
 
 Y un prompt, `entender-factura`, que guía al agente desde la ruta del fichero hasta una
 explicación completa en español.
 
-## Avisos y estimaciones
+## Deducciones
 
-Dos cifras son deducciones, no datos impresos en la factura, y el servidor lo dice en el
-campo `warnings` cuando toca:
+Alguna cifra es una deducción y no un dato impreso en la factura. `read_invoice` las
+lista en el campo `inferences`, con el valor que ha publicado, lo que decía el QR y qué
+otras secciones arrastran esa deducción:
 
 - **La unidad del precio de potencia.** El QR no indica si viene en €/kW/día o en €/kW/año;
-  se deduce de la magnitud del valor.
+  se deduce de la magnitud del valor y se convierte dividiendo entre 365.
 - **La ventana del consumo anual.** Algunas comercializadoras rellenan mal la fecha de
   inicio, lo que multiplicaría por diez la media mensual. Cuando el consumo facturado
   contradice esa fecha, se estima la ventana real a partir del ritmo de consumo.
+- **La estimación mensual sin precios de energía.** Si el QR no los trae, la media se
+  deriva del importe total en vez de calcularse a partir del consumo.
 
-Traslada esos avisos al usuario en lugar de presentar las cifras como exactas.
+Si `inferences` trae algo, preséntalo al usuario como estimación y no como dato exacto.
+Es la única parte del JSON que no puedes deducir mirando los datos: el campo afectado
+lleva un número que parece medido.
+
+Lo que **no** hay ahí son campos que el QR simplemente no incluye. Esos llegan como
+`null` y se ven solos, así que el servidor no gasta una frase en repetirlo.
 
 ## Limitaciones
 

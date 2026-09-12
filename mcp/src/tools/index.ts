@@ -3,6 +3,10 @@
  *
  * Names and descriptions are in English so the calling model reasons about them
  * reliably; everything the user eventually reads is Spanish.
+ *
+ * The tools extract and explain; they deliberately do not compute. Anything that
+ * is arithmetic over data already returned is the calling agent's job, and the
+ * conventions it needs are published as resources (see `../resources.ts`).
  */
 
 import { z } from 'zod';
@@ -11,7 +15,6 @@ import { CONCEPT_IDS, GLOSSARY, getConcept, getQrField } from '../../../src/lib/
 import type { QrParameters } from '../../../src/lib/cnmc';
 import { resolveInvoice, type InvoiceInput } from '../invoice';
 import { presentInvoice } from '../present';
-import { presentPower, presentSimulation } from '../presentPower';
 import { invoiceInputShape } from './schemas';
 
 /** MCP tools return content blocks; every tool here answers with one JSON block. */
@@ -37,54 +40,18 @@ export const readInvoiceTool = {
       'Read a Spanish electricity invoice and return everything it says, in structured form. ' +
       'Decodes the CNMC QR code from a PDF or image on this machine, then returns the supply point, ' +
       'the contract and what it means, the billing period, contracted and demanded power, ' +
-      'consumption, prices, the amounts billed, an averaged monthly estimate, a Spanish summary you ' +
-      'can relay to the user, and warnings about anything uncertain. Start here for any question ' +
-      'about an invoice.',
+      'consumption, prices, the amounts billed, and an averaged monthly estimate. Write the ' +
+      'explanation for the user yourself, in Spanish, from these figures. Check the `inferences` ' +
+      'array: it lists any figure the server deduced rather than read off the invoice, which you ' +
+      'could not tell apart otherwise, and those you must present as estimates. Start here for any ' +
+      'question about an invoice. To answer whether the user can lower their contracted power, or what they ' +
+      'would save, work it out yourself from this data using the recipe in the cnmc://power-method ' +
+      'resource, which pins down the safety margin, the rounding and the tax order.',
     inputSchema: invoiceInputShape,
   },
   handler: async (args: Parameters<typeof asInvoiceInput>[0]) => {
     const { qrParams, source } = await resolveInvoice(asInvoiceInput(args));
     return json({ source, ...presentInvoice(qrParams) });
-  },
-};
-
-export const analyzePowerTool = {
-  name: 'analyze_power',
-  config: {
-    title: '¿Puedo bajar la potencia contratada?',
-    description:
-      'Decide whether the user can lower their contracted power (potencia contratada) and how much ' +
-      'they would save per year. Compares the power they pay for against the maximum their meter ' +
-      'actually recorded, leaving a safety margin, and works out the payback period against the ' +
-      'one-off fee for changing it. This is the single most common way to cut a Spanish electricity ' +
-      'bill without changing supplier.',
-    inputSchema: invoiceInputShape,
-  },
-  handler: async (args: Parameters<typeof asInvoiceInput>[0]) => {
-    const { qrParams, source } = await resolveInvoice(asInvoiceInput(args));
-    return json({ source, ...presentPower(qrParams) });
-  },
-};
-
-export const simulatePowerChangeTool = {
-  name: 'simulate_power_change',
-  config: {
-    title: 'Simular un cambio de potencia',
-    description:
-      'Work out the annual saving for a specific pair of contracted powers, rather than the ' +
-      'recommended one. Use it to answer "and if I set it to 3 kW?". Warns when the proposal is ' +
-      'below the power the meter actually recorded, which would trip the breaker.',
-    inputSchema: {
-      ...invoiceInputShape,
-      p1_kw: z.number().positive().describe('Proposed contracted power for P1 (punta), in kW.'),
-      p2_kw: z.number().positive().describe('Proposed contracted power for P2 (valle), in kW.'),
-    },
-  },
-  handler: async (
-    args: Parameters<typeof asInvoiceInput>[0] & { p1_kw: number; p2_kw: number },
-  ) => {
-    const { qrParams, source } = await resolveInvoice(asInvoiceInput(args));
-    return json({ source, ...presentSimulation(qrParams, args.p1_kw, args.p2_kw) });
   },
 };
 

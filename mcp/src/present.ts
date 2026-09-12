@@ -1,14 +1,15 @@
 /**
  * Shapes parsed CNMC data into the JSON an agent receives.
  *
- * Keys are English so the calling model reasons about them easily; every
- * human-readable string is Spanish so the agent can relay it to its user
- * verbatim.
+ * Keys are English so the calling model reasons about them easily; the few
+ * human-readable strings are Spanish so the agent can relay them to its user
+ * verbatim. Writing the explanation itself is the agent's job, not this module's.
  *
- * Two figures in here are inferences rather than facts printed on the invoice
- * (the power price basis and the annual consumption window). Both are reported
- * explicitly and both raise a warning when they are doing real work, so an agent
- * can qualify what it tells its user.
+ * A few figures in here are deduced rather than read off the invoice. Those are
+ * listed in `inferences`, because they are the one thing an agent cannot detect
+ * for itself: the field holds a number that looks measured. Missing fields are
+ * deliberately NOT listed — a null is visible on its own, and restating it in
+ * prose would be writing the agent's explanation for it.
  */
 
 import {
@@ -30,9 +31,7 @@ import {
   isSinglePriceContract,
   resolveConsumptionMonths,
   splitInvoiceAmounts,
-  formatCurrency,
   formatNumber,
-  formatPower,
 } from '../../src/lib/cnmc';
 
 /** Round to cents, so JSON never carries floating-point noise. */
@@ -53,6 +52,25 @@ const INVOICE_TYPE_LABELS: Record<string, string> = {
   [InvoiceType.COMPLEMENTARY]: 'Complementaria',
   [InvoiceType.REGULARIZATION]: 'Regularizadora',
 };
+
+/**
+ * One figure the server deduced instead of reading it off the invoice.
+ *
+ * `id` is for branching on, `reason` for relaying to the user. The agent is
+ * expected to put `reason` in its own words rather than quote it.
+ */
+export interface Inference {
+  id: 'annual_window_estimated' | 'power_price_annual_basis' | 'monthly_estimate_from_total';
+  /** Dotted path to the affected field in this report. */
+  field: string;
+  /** The value the server ended up publishing at `field`, shaped like that field. */
+  inferred: number | Record<string, number | null> | null;
+  /** What the QR actually carried, when that is what was overridden. */
+  instead_of: Record<string, unknown> | null;
+  reason: string;
+  /** Other parts of the report that inherit this deduction. */
+  affects: string[];
+}
 
 export interface InvoiceReport {
   supply: {
@@ -139,9 +157,9 @@ export interface InvoiceReport {
       total_cost_eur: number;
     }[];
   };
-  summary_es: string;
-  warnings: string[];
-  /** The raw parsed QR fields, to pass back into the analysis tools. */
+  /** Figures this module deduced rather than read. Empty when everything is as printed. */
+  inferences: Inference[];
+  /** The raw parsed QR fields, to pass back into explain_concept without re-reading the file. */
   invoice: QrParameters;
 }
 
@@ -154,98 +172,73 @@ export interface InvoiceReport {
  */
 const annualWindow = (
   qrParams: QrParameters,
-): { months: number; source: 'dates' | 'consumption' } => {
+): { months: number; source: 'dates' | 'consumption'; monthsFromDates: number } => {
   const resolved = resolveConsumptionMonths(qrParams);
   const fromDates = calculateActualMonths(qrParams.iniA, qrParams.fFact || qrParams.finF);
 
   return {
     months: Math.round(resolved * 100) / 100,
     source: Math.abs(resolved - fromDates) < 0.01 ? 'dates' : 'consumption',
+    monthsFromDates: Math.round(fromDates * 100) / 100,
   };
 };
 
-const buildWarnings = (
+/**
+ * List the figures that were deduced rather than read.
+ *
+ * Only deductions belong here. A field the QR simply does not carry comes back
+ * null and the agent can see that for itself; saying so again in Spanish would
+ * be writing its explanation for it.
+ */
+const buildInferences = (
   qrParams: QrParameters,
-  report: Omit<InvoiceReport, 'warnings'>,
-): string[] => {
-  const warnings: string[] = [];
+  report: Omit<InvoiceReport, 'inferences'>,
+  window: { monthsFromDates: number },
+): Inference[] => {
+  const inferences: Inference[] = [];
 
   if (report.consumption.annual_window_source === 'consumption') {
-    warnings.push(
-      `La fecha de inicio del consumo anual del QR (${qrParams.iniA}) no cuadra con el consumo ` +
+    inferences.push({
+      id: 'annual_window_estimated',
+      field: 'consumption.annual_window_months',
+      inferred: report.consumption.annual_window_months,
+      instead_of: { iniA: qrParams.iniA, implied_months: window.monthsFromDates },
+      reason:
+        `La fecha de inicio del consumo anual del QR (${qrParams.iniA}) no cuadra con el consumo ` +
         `facturado: implicaría un consumo mensual desproporcionado. Se ha estimado la ventana real ` +
-        `en ${formatNumber(report.consumption.annual_window_months, 1)} meses a partir del ritmo de ` +
-        `consumo del periodo facturado. Las medias mensuales son una estimación.`,
-    );
+        `en ${formatNumber(report.consumption.annual_window_months, 1)} meses a partir del ritmo ` +
+        `de consumo del periodo facturado.`,
+      affects: ['consumption.annual_window_months', 'monthly_estimate'],
+    });
   }
 
   if (report.power.price_basis === 'annual') {
-    warnings.push(
-      'Los precios de potencia del QR vienen en €/kW/año (habitual en tarifas indexadas) y se han ' +
-        'convertido a €/kW/día dividiendo entre 365. El QR no indica la unidad, así que es una deducción.',
-    );
-  }
-
-  if (report.power.price_basis === null) {
-    warnings.push(
-      'El QR no incluye precios de potencia, así que no se puede calcular el coste del término fijo ' +
-        'ni el ahorro por bajar la potencia.',
-    );
+    inferences.push({
+      id: 'power_price_annual_basis',
+      field: 'prices.power_eur_per_kw_day',
+      inferred: report.prices.power_eur_per_kw_day,
+      instead_of: { prP1: qrParams.prP1, prP2: qrParams.prP2, read_as: '€/kW/año' },
+      reason:
+        'El QR no indica la unidad del precio de potencia. Por su magnitud se ha leído en €/kW/año ' +
+        '(habitual en tarifas indexadas) y se ha convertido a €/kW/día dividiendo entre 365.',
+      affects: ['prices.power_eur_per_kw_day', 'power.by_period', 'monthly_estimate.power_eur'],
+    });
   }
 
   if (qrParams.prE1 === undefined) {
-    warnings.push(
-      'El QR no incluye precios de energía. La estimación mensual se ha derivado del importe total ' +
-        'de la factura en lugar de calcularse a partir del consumo.',
-    );
+    inferences.push({
+      id: 'monthly_estimate_from_total',
+      field: 'monthly_estimate.total_eur',
+      inferred: report.monthly_estimate.total_eur,
+      instead_of: null,
+      reason:
+        'El QR no incluye precios de energía, así que la estimación mensual se ha derivado del ' +
+        'importe total de la factura en lugar de calcularse a partir del consumo y los precios.',
+      affects: ['monthly_estimate'],
+    });
   }
 
-  if (report.power.max_demanded_kw.p1 === null && report.power.max_demanded_kw.p2 === null) {
-    warnings.push(
-      'El QR no trae la potencia máxima demandada, así que no se puede saber si sobra potencia ' +
-        'contratada. Ese dato está en el área de clientes de tu distribuidora.',
-    );
-  }
-
-  if (report.billing_period.total_eur === null) {
-    warnings.push('El QR no incluye el importe total de la factura.');
-  }
-
-  return warnings;
-};
-
-const buildSummary = (report: Omit<InvoiceReport, 'summary_es' | 'warnings'>): string => {
-  const parts: string[] = [];
-
-  const label = report.contract.label ?? 'de tipo desconocido';
-  parts.push(
-    `Tienes una tarifa ${label} con ${formatPower(report.power.contracted_kw.p1)} de potencia contratada en punta.`,
-  );
-
-  if (report.billing_period.total_eur !== null) {
-    const days = report.billing_period.days;
-    const period = days ? ` por un periodo de ${days} días` : '';
-    parts.push(`Esta factura suma ${formatCurrency(report.billing_period.total_eur)}${period}.`);
-  }
-
-  if (report.invoice_amounts.power_eur !== null && report.invoice_amounts.energy_eur !== null) {
-    parts.push(
-      `De ese importe, ${formatCurrency(report.invoice_amounts.energy_eur)} son energía consumida ` +
-        `y ${formatCurrency(report.invoice_amounts.power_eur)} el término fijo de potencia; el resto ` +
-        `son impuestos, alquiler de contador y otros conceptos.`,
-    );
-  }
-
-  parts.push(
-    `La media mensual estimada, repartiendo tu consumo anual, es de ` +
-      `${formatCurrency(report.monthly_estimate.total_eur)} al mes.`,
-  );
-
-  if (report.contract.penalty_active) {
-    parts.push(`Ojo: tienes permanencia hasta el ${report.contract.penalty_end}.`);
-  }
-
-  return parts.join(' ');
+  return inferences;
 };
 
 /**
@@ -261,7 +254,7 @@ export function presentInvoice(qrParams: QrParameters): InvoiceReport {
 
   const billingTotal = (qrParams.cfP1 ?? 0) + (qrParams.cfP2 ?? 0) + (qrParams.cfP3 ?? 0) || null;
 
-  const base: Omit<InvoiceReport, 'summary_es' | 'warnings'> = {
+  const base: Omit<InvoiceReport, 'inferences'> = {
     supply: {
       cups: qrParams.cups,
       postal_code: qrParams.cp,
@@ -373,8 +366,5 @@ export function presentInvoice(qrParams: QrParameters): InvoiceReport {
     invoice: qrParams,
   };
 
-  const summary_es = buildSummary(base);
-  const warnings = buildWarnings(qrParams, { ...base, summary_es });
-
-  return { ...base, summary_es, warnings };
+  return { ...base, inferences: buildInferences(qrParams, base, window) };
 }
