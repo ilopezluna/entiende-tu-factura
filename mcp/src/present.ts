@@ -14,7 +14,6 @@
 
 import {
   ContractType,
-  InvoiceType,
   type QrParameters,
   calculateActualMonths,
   calculateBreakdownPercentages,
@@ -25,6 +24,9 @@ import {
   getContractTypeExplanation,
   getContractTypeFromTc,
   getContractTypeLabel,
+  getInvoiceTypeExplanation,
+  getInvoiceTypeFromTf,
+  getInvoiceTypeLabel,
   getPermanenciaStatus,
   getPowerPriceBasis,
   getRevisionFrequencyLabel,
@@ -44,14 +46,6 @@ const kw = (value: number): number => Math.round(value * 1000) / 1000;
 
 const orNull = (value: number | undefined): number | null =>
   value === undefined ? null : price(value);
-
-const INVOICE_TYPE_LABELS: Record<string, string> = {
-  [InvoiceType.CANCELLATION]: 'Anuladora',
-  [InvoiceType.NORMAL]: 'Normal',
-  [InvoiceType.CORRECTIVE]: 'Rectificadora',
-  [InvoiceType.COMPLEMENTARY]: 'Complementaria',
-  [InvoiceType.REGULARIZATION]: 'Regularizadora',
-};
 
 /**
  * One figure the server deduced instead of reading it off the invoice.
@@ -87,6 +81,7 @@ export interface InvoiceReport {
     single_price: boolean | null;
     invoice_type: string | null;
     invoice_type_label: string | null;
+    invoice_type_explanation: string | null;
     price_revision: string | null;
     contract_end: string | null;
     penalty_end: string | null;
@@ -251,6 +246,7 @@ export function presentInvoice(qrParams: QrParameters): InvoiceReport {
   const window = annualWindow(qrParams);
   const contractType = getContractTypeFromTc(qrParams.tc);
   const permanencia = getPermanenciaStatus(qrParams);
+  const invoiceType = getInvoiceTypeFromTf(qrParams.tf);
 
   const billingTotal = (qrParams.cfP1 ?? 0) + (qrParams.cfP2 ?? 0) + (qrParams.cfP3 ?? 0) || null;
 
@@ -268,7 +264,8 @@ export function presentInvoice(qrParams: QrParameters): InvoiceReport {
       category: contractType ? getContractTypeCategory(contractType) : null,
       single_price: contractType ? isSinglePriceContract(contractType) : null,
       invoice_type: qrParams.tf ?? null,
-      invoice_type_label: qrParams.tf ? (INVOICE_TYPE_LABELS[qrParams.tf] ?? null) : null,
+      invoice_type_label: invoiceType ? getInvoiceTypeLabel(invoiceType) : null,
+      invoice_type_explanation: invoiceType ? getInvoiceTypeExplanation(invoiceType) : null,
       price_revision: qrParams.rev !== undefined ? getRevisionFrequencyLabel(qrParams.rev) : null,
       contract_end: qrParams.finContrato ?? null,
       penalty_end: permanencia?.endDate ?? null,

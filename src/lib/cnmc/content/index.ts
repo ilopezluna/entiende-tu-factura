@@ -5,5 +5,6 @@
  */
 
 export * from './contract';
+export * from './invoice';
 export * from './glossary';
 export * from './fields';

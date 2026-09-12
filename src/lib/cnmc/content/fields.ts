@@ -1,7 +1,12 @@
 /**
  * Dictionary of the CNMC invoice QR fields.
  *
- * Reference: BOE Resolution of 6 October 2022 (Table 1, pages 11-15).
+ * Reference: BOE Resolution of 6 October 2022, Annex I, Table 1.
+ * https://www.boe.es/diario_boe/txt.php?id=BOE-A-2022-16989
+ *
+ * `fields.test.ts` pins every name-independent fact here (the unit and the
+ * «Obligatorio» tick of all 43 fields) against that table, so this cannot drift
+ * away from the norm unnoticed.
  *
  * Typed as `Record<keyof QrParameters, QrFieldDoc>`, so adding a field to
  * QrParameters without documenting it here is a compile error. That is what
@@ -11,13 +16,21 @@
 import type { QrParameters } from '../types';
 
 /** Unit a field is expressed in, or null for codes, dates and flags. */
-export type QrFieldUnit = 'kW' | 'kWh' | '€' | '€/kWh' | '€/kW día' | null;
+export type QrFieldUnit = 'kW' | 'kWh' | '€' | '€/kWh' | '€/kW día' | '€/kW año' | null;
 
 export interface QrFieldDoc {
   /** Spanish name as used on the invoice. */
   name: string;
   unit: QrFieldUnit;
-  /** Whether the CNMC spec makes the field mandatory. */
+  /**
+   * Whether Table 1 ticks the «Obligatorio» column for this field, meaning it is
+   * required on every invoice.
+   *
+   * `false` does NOT mean optional. Most of these are required too, just with an
+   * exception: the spec words them as "siempre, salvo en facturas anuladoras,
+   * rectificadoras, complementarias o regularizadoras". Treat a missing field as
+   * worth noting, not as normal.
+   */
   required: boolean;
   /** Any extra semantics worth knowing when reading the value. */
   notes?: string;
@@ -77,17 +90,17 @@ export const QR_FIELDS: Record<keyof QrParameters, QrFieldDoc> = {
   iniF: {
     name: 'Fecha de inicio del periodo de facturación',
     unit: null,
-    required: false,
+    required: true,
     notes: 'YYYY-MM-DD. El día indicado NO se incluye.',
   },
   finF: {
     name: 'Fecha de fin del periodo de facturación',
     unit: null,
-    required: false,
+    required: true,
     notes: 'YYYY-MM-DD, incluida.',
   },
-  fFact: { name: 'Fecha de emisión de la factura', unit: null, required: false },
-  finContrato: { name: 'Fecha de fin de contrato', unit: null, required: false },
+  fFact: { name: 'Fecha de emisión de la factura', unit: null, required: true },
+  finContrato: { name: 'Fecha de fin de contrato', unit: null, required: true },
   finPen: {
     name: 'Fecha de fin de permanencia',
     unit: null,
@@ -108,22 +121,25 @@ export const QR_FIELDS: Record<keyof QrParameters, QrFieldDoc> = {
   tf: {
     name: 'Tipo de factura',
     unit: null,
-    required: false,
-    notes: 'A anuladora, N normal, R rectificadora, C complementaria, G regularizadora.',
+    required: true,
+    notes:
+      'A anuladora, N normal, R rectificadora, C complementaria, G regularizadora. Salvo en las normales, los importes ajustan facturas anteriores y no son el coste de un periodo de suministro.',
   },
 
   // Prices
   prP1: {
     name: 'Precio del término de potencia en P1, sin impuestos',
-    unit: '€/kW día',
+    unit: '€/kW año',
     required: false,
-    notes: 'En tarifas indexadas (A0) puede venir en €/kW año; el QR no lo indica.',
+    notes:
+      'La Resolución lo define en €/kW año, pero muchas comercializadoras lo emiten en €/kW día y el QR no distingue cuál es. read_invoice lo deduce por la magnitud, lo normaliza a €/kW día y lo señala en inferences cuando ha tenido que convertirlo.',
   },
   prP2: {
     name: 'Precio del término de potencia en P2, sin impuestos',
-    unit: '€/kW día',
+    unit: '€/kW año',
     required: false,
-    notes: 'En tarifas indexadas (A0) puede venir en €/kW año; el QR no lo indica.',
+    notes:
+      'La Resolución lo define en €/kW año, pero muchas comercializadoras lo emiten en €/kW día y el QR no distingue cuál es. read_invoice lo deduce por la magnitud, lo normaliza a €/kW día y lo señala en inferences cuando ha tenido que convertirlo.',
   },
   prE1: {
     name: 'Precio del término de energía en P1, sin impuestos',
@@ -143,7 +159,7 @@ export const QR_FIELDS: Record<keyof QrParameters, QrFieldDoc> = {
 
   // Invoice amounts
   imp: { name: 'Importe total de la factura, con impuestos', unit: '€', required: false },
-  impPot: { name: 'Subtotal del término de potencia, sin impuestos', unit: '€', required: true },
+  impPot: { name: 'Subtotal del término de potencia, sin impuestos', unit: '€', required: false },
   impEner: {
     name: 'Subtotal del término de energía, sin impuestos',
     unit: '€',
@@ -213,7 +229,7 @@ export const QR_FIELDS: Record<keyof QrParameters, QrFieldDoc> = {
   rev: {
     name: 'Revisión de precios',
     unit: null,
-    required: false,
+    required: true,
     notes: '0 anual, 1 semestral, 2 trimestral, 3 mensual, 4 cada 3 años, 5 cada 5 años.',
   },
 };

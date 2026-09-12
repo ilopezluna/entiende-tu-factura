@@ -9,7 +9,9 @@ import {
   POWER_STEP_KW,
   SAFETY_MARGIN,
 } from '../../../src/lib/cnmc';
-import { powerMethodResource } from '../resources';
+import { parseQrParameters } from '../../../src/lib/cnmc';
+import { presentInvoice } from '../present';
+import { powerMethodResource, qrFieldsResource } from '../resources';
 
 /**
  * The server stopped computing the power verdict and now publishes the method so
@@ -123,5 +125,54 @@ describe('powerMethodResource worked example', () => {
         ? 'lower-possible'
         : 'keep';
     expect(verdict).toBe(expected.verdict);
+  });
+});
+
+describe('qrFieldsResource', () => {
+  const resource = qrFieldsResource();
+
+  it('points at the norm it transcribes', () => {
+    expect(resource.source_url).toBe('https://www.boe.es/diario_boe/txt.php?id=BOE-A-2022-16989');
+    expect(resource.source).toContain('Anexo I');
+  });
+
+  it('says what a false required flag actually means', () => {
+    // Seven of these flags were wrong before; a reader who takes false for
+    // "optional" draws the wrong conclusion from a missing field.
+    expect(resource.required_means).toContain('NO quiere decir opcional');
+  });
+
+  it('carries the five invoice types of Table 2', () => {
+    expect(resource.invoice_types.types.map((t) => t.code)).toEqual(['A', 'N', 'R', 'C', 'G']);
+    for (const type of resource.invoice_types.types) {
+      expect(type.label).toBeTruthy();
+      expect(type.explanation).toBeTruthy();
+    }
+  });
+
+  it("publishes the annex's worked example with its defect flagged", () => {
+    // The URL printed in the BOE lost the decimal separator of prP1 and prP2,
+    // so it is published verbatim for reference and corrected for use.
+    expect(resource.example.url_as_printed).toContain('prP1=26164043&prP2=1143132');
+    expect(resource.example.url_corrected).toContain('prP1=26.164043&prP2=1.143132');
+    expect(resource.example.known_defect).toContain('separador decimal');
+  });
+
+  it('parses the corrected example into the values Table 4 lists', () => {
+    const parsed = parseQrParameters(resource.example.url_corrected);
+    expect(parsed.cups).toBe('ES0000000002054081TS');
+    expect(parsed.pP1).toBe(3.3);
+    expect(parsed.pmaxP1).toBe(3.0);
+    expect(parsed.imp).toBe(151.62);
+    expect(parsed.prP1).toBe(26.164043);
+    expect(parsed.prP2).toBe(1.143132);
+    expect(parsed.prE1).toBe(0.263547);
+  });
+
+  it('reads the example as annual power prices, which is what the norm says', () => {
+    // 26 €/kW is nonsense per day and right per year. The report says so out loud.
+    const report = presentInvoice(parseQrParameters(resource.example.url_corrected));
+    expect(report.power.price_basis).toBe('annual');
+    expect(report.inferences.map((i) => i.id)).toContain('power_price_annual_basis');
   });
 });
