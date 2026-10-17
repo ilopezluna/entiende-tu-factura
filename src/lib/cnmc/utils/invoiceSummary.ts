@@ -76,12 +76,22 @@ export interface PermanenciaStatus {
 }
 
 /**
+ * Average cost per day of this invoice: total with taxes divided by the
+ * billing period length. Null when the QR omits the total or the period, or
+ * when either is not positive — an unknown figure must never render as €0.
+ */
+export const getCostPerDay = (qrParams: QrParameters): number | null => {
+  const days = calculatePeriodDays(qrParams);
+  if (!qrParams.imp || qrParams.imp <= 0 || days === null) return null;
+  return qrParams.imp / days;
+};
+
+/**
  * Permanence penalty status, or null when the QR carries no end date or the
  * '0000-00-00' sentinel some retailers use for "no penalty".
  *
  * @param now - injectable clock so callers and tests are deterministic.
- */
-export const getPermanenciaStatus = (
+ */ export const getPermanenciaStatus = (
   qrParams: QrParameters,
   now: Date = new Date(),
 ): PermanenciaStatus | null => {

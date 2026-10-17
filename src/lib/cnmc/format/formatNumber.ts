@@ -52,6 +52,15 @@ export function formatCurrencyPerMonth(value: number): string {
 }
 
 /**
+ * Format a daily cost (€/día)
+ * @param value - The daily cost value
+ * @returns Formatted string like "1.234,56€/día" or "1.234€/día"
+ */
+export function formatCurrencyPerDay(value: number): string {
+  return `${formatNumber(value)}€/día`;
+}
+
+/**
  * Format power in kW
  * @param value - The power value
  * @returns Formatted string like "3,45 kW"

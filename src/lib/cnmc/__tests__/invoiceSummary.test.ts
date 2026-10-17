@@ -3,6 +3,7 @@ import {
   calculatePeriodDays,
   splitInvoiceAmounts,
   getPermanenciaStatus,
+  getCostPerDay,
 } from '../utils/invoiceSummary';
 import type { QrParameters } from '../types';
 
@@ -27,7 +28,6 @@ describe('calculatePeriodDays', () => {
   it('counts the days between the billing period bounds', () => {
     expect(calculatePeriodDays(baseQrParams({ iniF: '2024-03-01', finF: '2024-03-31' }))).toBe(30);
   });
-
   it('returns null when either bound is missing', () => {
     expect(calculatePeriodDays(baseQrParams({ iniF: '2024-03-01' }))).toBeNull();
     expect(calculatePeriodDays(baseQrParams({ finF: '2024-03-31' }))).toBeNull();
@@ -46,6 +46,25 @@ describe('calculatePeriodDays', () => {
     expect(
       calculatePeriodDays(baseQrParams({ iniF: '2024-03-01', finF: '2024-03-01' })),
     ).toBeNull();
+  });
+});
+
+describe('getCostPerDay', () => {
+  it('divides the total with taxes by the billing period length', () => {
+    expect(getCostPerDay(baseQrParams({ imp: 30, iniF: '2024-03-01', finF: '2024-03-31' }))).toBe(
+      1,
+    );
+  });
+
+  it('returns null when the total is missing or non-positive', () => {
+    const period = { iniF: '2024-03-01', finF: '2024-03-31' };
+    expect(getCostPerDay(baseQrParams({ ...period }))).toBeNull();
+    expect(getCostPerDay(baseQrParams({ imp: 0, ...period }))).toBeNull();
+    expect(getCostPerDay(baseQrParams({ imp: -5, ...period }))).toBeNull();
+  });
+
+  it('returns null when the period is missing', () => {
+    expect(getCostPerDay(baseQrParams({ imp: 30 }))).toBeNull();
   });
 });
 

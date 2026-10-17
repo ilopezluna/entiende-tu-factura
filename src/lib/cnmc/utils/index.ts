@@ -31,6 +31,7 @@ export {
   calculatePeriodDays,
   splitInvoiceAmounts,
   getPermanenciaStatus,
+  getCostPerDay,
   type BreakdownPercentages,
   type InvoiceAmountSplit,
   type PermanenciaStatus,
