@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://entiende-tu-factura.com/sitemap.xml
