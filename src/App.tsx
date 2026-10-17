@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import EntiendeTuFacturaLanding from './components/EntiendeTuFacturaLanding';
 import LowerPowerPage from './pages/LowerPowerPage';
+import OpenSourceBanner from './components/OpenSourceBanner';
 import { QrParameters } from './lib/cnmc';
 import { useHashRoute } from './hooks/useHashRoute';
 
@@ -16,16 +17,26 @@ function App() {
 
   if (route === '/bajar-potencia') {
     return (
-      <LowerPowerPage qrParams={qrParams} onQrParams={setQrParams} onResetInvoice={resetInvoice} />
+      <>
+        <OpenSourceBanner />
+        <LowerPowerPage
+          qrParams={qrParams}
+          onQrParams={setQrParams}
+          onResetInvoice={resetInvoice}
+        />
+      </>
     );
   }
 
   return (
-    <EntiendeTuFacturaLanding
-      qrParams={qrParams}
-      onQrParams={setQrParams}
-      onResetInvoice={resetInvoice}
-    />
+    <>
+      <OpenSourceBanner />
+      <EntiendeTuFacturaLanding
+        qrParams={qrParams}
+        onQrParams={setQrParams}
+        onResetInvoice={resetInvoice}
+      />
+    </>
   );
 }
 
