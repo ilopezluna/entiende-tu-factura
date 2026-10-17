@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { prerenderPlugin } from './vite-prerender-plugin.ts';
 
 export default defineConfig({
   // Relative base so the build works on GitHub Pages project sites
   // (served from /<repo>/) and on custom domains without changes.
   base: './',
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), prerenderPlugin()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
