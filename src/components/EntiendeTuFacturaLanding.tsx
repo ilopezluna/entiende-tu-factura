@@ -67,7 +67,7 @@ const EntiendeTuFacturaLanding: React.FC<EntiendeTuFacturaLandingProps> = ({
           </section>
 
           {/* Upload */}
-          <section id="upload-section" className="py-8 md:py-24 px-4 bg-gray-50">
+          <section id="upload-section" className="pt-6 pb-8 md:pt-6 md:pb-24 px-4 bg-gray-50">
             <div className="max-w-2xl mx-auto space-y-6">
               <div className="bg-white rounded-2xl p-6 md:p-12 shadow-card">
                 <PrivacyBanner />
