@@ -186,29 +186,35 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
           </button>
         </header>
 
-        {/* Summary: what this invoice costs and the period it covers */}
+        {/* Summary: what this invoice costs, the period it covers and its CUPS */}
         <section className="mb-12">
-          <div className="bg-blue-50/50 rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm p-6 md:p-8">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
-              <div>
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                  Total de esta factura
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 bg-blue-50/50 rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm p-6">
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                Total de esta factura
+              </p>
+              <p className="text-4xl md:text-5xl font-black text-primary mt-1">
+                {formatCurrency(invoiceTotal)}
+              </p>
+              <p className="text-sm text-gray-700 mt-2">Lo que has pagado por tu luz</p>
+
+              <div className="mt-4 pt-4 border-t border-blue-200 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-primary flex-shrink-0" aria-hidden="true" />
+                <p className="text-sm text-gray-700">
+                  <span className="font-bold">{periodDays ? `${periodDays} días` : '—'}</span>
+                  {periodLabel ? ` · ${periodLabel}` : ''}
                 </p>
-                <p className="text-4xl md:text-5xl font-black text-primary mt-1">
-                  {formatCurrency(invoiceTotal)}
-                </p>
-                <p className="text-sm text-gray-700 mt-2">Lo que has pagado por tu luz</p>
               </div>
-              <div className="sm:border-l sm:border-blue-200 sm:pl-8">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                  Periodo facturado
-                </p>
-                <p className="text-2xl md:text-3xl font-black text-gray-900 mt-1 flex items-center gap-2">
-                  <CalendarDays className="w-7 h-7 text-primary" aria-hidden="true" />
-                  {periodDays ? `${periodDays} días` : '—'}
-                </p>
-                {periodLabel && <p className="text-sm text-gray-500 mt-2">{periodLabel}</p>}
-              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">CUPS</p>
+              <p className="font-mono text-lg font-bold text-gray-900 mt-2 break-all">
+                {qrParams.cups}
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                El código único de tu suministro. Lo necesitas si cambias de comercializadora.
+              </p>
             </div>
           </div>
         </section>
