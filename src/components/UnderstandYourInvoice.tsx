@@ -46,6 +46,12 @@ interface BreakdownItem {
 /** Plain-language explanation of the billing period, shown next to the dates. */
 const PERIOD_EXPLANATION = getConcept('periodo_facturacion')?.explanation ?? null;
 
+/**
+ * Official definition of the invoice QR: the CNMC resolution, as published in
+ * the BOE, whose Table 1 lists every parameter this app parses.
+ */
+const QR_SPEC_URL = 'https://www.boe.es/diario_boe/txt.php?id=BOE-A-2022-16989';
+
 const BreakdownCard: React.FC<{
   title: string;
   subtitle: string;
@@ -452,6 +458,24 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
             </div>
           </div>
         </section>
+
+        {/* Footnote: where the data comes from. External navigation only —
+            the invoice data itself never leaves the browser. */}
+        <footer className="mt-16 pb-4 text-center">
+          <p className="text-xs text-gray-400 max-w-xl mx-auto leading-relaxed">
+            Todos los datos de esta página salen del código QR oficial de tu factura y se quedan en
+            tu navegador. Lo que debe traer ese QR lo define la CNMC en{' '}
+            <a
+              href={QR_SPEC_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-600 transition-colors"
+            >
+              esta resolución publicada en el BOE
+            </a>
+            .
+          </p>
+        </footer>
       </div>
     </div>
   );
