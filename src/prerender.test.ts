@@ -12,7 +12,7 @@ describe('prerender', () => {
   it('renders the landing markup in Node, defaulting to the landing route', () => {
     const markup = renderToStaticMarkup(createElement(App));
 
-    expect(markup).toContain('Sube tu factura de luz');
+    expect(markup).toContain('Entiende tu factura de luz');
     expect(markup).toContain('100% Privado');
     expect(markup).toContain('bajar la potencia contratada');
   });
