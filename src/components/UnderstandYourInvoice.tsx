@@ -93,13 +93,17 @@ interface UnderstandYourInvoiceProps {
 }
 
 const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams, onReset }) => {
-  // Actual invoice total (with taxes) and its billing period length.
-  const invoiceTotal = qrParams.imp ?? 0;
+  // Actual invoice total (with taxes) and its billing period length. The total
+  // is null when the QR omits it, so an unknown amount never renders as €0.
+  const invoiceTotal =
+    typeof qrParams.imp === 'number' && Number.isFinite(qrParams.imp) ? qrParams.imp : null;
   const periodDays = useMemo(() => calculatePeriodDays(qrParams), [qrParams]);
 
-  // Human-readable billing period, e.g. «01/11/2025 – 31/12/2025».
+  // Human-readable billing period, e.g. «01/11/2025 – 31/12/2025». Gated on
+  // periodDays so the range and the day count always agree: both come from
+  // iniF/finF and hide together when the period is missing, reversed or empty.
   const periodLabel = useMemo(() => {
-    if (!qrParams.iniF || !qrParams.finF) return null;
+    if (periodDays === null || !qrParams.iniF || !qrParams.finF) return null;
     const fmt = (d: string) =>
       new Date(d + 'T00:00:00').toLocaleDateString('es-ES', {
         day: '2-digit',
@@ -107,7 +111,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
         year: 'numeric',
       });
     return `${fmt(qrParams.iniF)} – ${fmt(qrParams.finF)}`;
-  }, [qrParams]);
+  }, [qrParams, periodDays]);
 
   // Per-category amounts billed in THIS invoice (pre-tax for power/energy; the rest
   // — taxes, equipment rental, social bonus… — is the remainder up to the total).
@@ -194,9 +198,13 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 Total de esta factura
               </p>
               <p className="text-4xl md:text-5xl font-black text-primary mt-1">
-                {formatCurrency(invoiceTotal)}
+                {invoiceTotal !== null ? formatCurrency(invoiceTotal) : '—'}
               </p>
-              <p className="text-sm text-gray-700 mt-2">Lo que has pagado por tu luz</p>
+              <p className="text-sm text-gray-700 mt-2">
+                {invoiceTotal !== null
+                  ? 'Lo que has pagado por tu luz'
+                  : 'El QR de esta factura no incluye el total'}
+              </p>
 
               <div className="mt-4 pt-4 border-t border-blue-200 flex items-center gap-2">
                 <CalendarDays className="w-5 h-5 text-primary flex-shrink-0" aria-hidden="true" />
@@ -313,7 +321,7 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
 
         {/* Section 2: Visual breakdown of this invoice */}
         <section className="mb-12">
-          {invoiceTotal > 0 && invoiceItems.length > 0 && (
+          {invoiceTotal !== null && invoiceTotal > 0 && invoiceItems.length > 0 && (
             <BreakdownCard
               title="Desglose de esta factura"
               subtitle="Así se reparte cada euro de lo que has pagado en esta factura:"
