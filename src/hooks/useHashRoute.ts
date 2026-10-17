@@ -12,7 +12,10 @@ export function normalizeHash(hash: string): string {
  * internal links are plain anchors (`<a href="#/ruta">`).
  */
 export function useHashRoute(): string {
-  const [route, setRoute] = useState(() => normalizeHash(window.location.hash));
+  // Prerender runs in Node (no window); serve the landing ('/') in that case.
+  const [route, setRoute] = useState(() =>
+    typeof window === 'undefined' ? '/' : normalizeHash(window.location.hash),
+  );
 
   useEffect(() => {
     const onHashChange = () => {
