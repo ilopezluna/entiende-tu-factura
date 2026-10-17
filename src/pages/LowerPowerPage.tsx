@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react';
 import {
   AlertTriangle,
   ArrowLeft,
-  ArrowRight,
   CalendarClock,
   Droplets,
   History,
@@ -20,7 +19,6 @@ import SavingsMathCard from '../components/power/SavingsMathCard';
 import { Button } from '../components/ui';
 import { QrParameters, analyzePower, POWER_CHANGE_FEE_EUR, formatCurrency } from '../lib/cnmc';
 import { useInvoiceQr } from '../hooks/useInvoiceQr';
-import { INVOICEDOWN_POTENCIA_URL } from '../constants';
 
 interface LowerPowerPageProps {
   qrParams: QrParameters | null;
@@ -249,38 +247,6 @@ const LowerPowerPage: React.FC<LowerPowerPageProps> = ({
             </div>
           </div>
         </section>
-
-        {/* Footer Call to Action */}
-        <footer className="bg-primary rounded-2xl p-8 text-center text-white relative overflow-hidden">
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">¿Quieres afinar aún más tu potencia?</h3>
-            <p className="text-white/80 mb-8">
-              La calculadora de potencia óptima de InvoiceDown tiene en cuenta tus electrodomésticos
-              y hábitos para recomendarte la potencia exacta.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href={INVOICEDOWN_POTENCIA_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-primary font-black rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg text-center"
-              >
-                Calcula tu potencia óptima en InvoiceDown
-                <ArrowRight className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-
-          {/* Background Decoration */}
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path
-                d="M0,100 C20,80 40,80 60,100 C80,120 100,100 100,100 V0 H0 Z"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
-        </footer>
       </div>
     </div>
   );

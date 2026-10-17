@@ -33,11 +33,6 @@ O, si prefieres solo el servidor MCP sin el comando `/entender`:
 claude mcp add factura-luz -- npx -y factura-luz-mcp
 ```
 
-## Más servicios
-
-Si quieres comparar ofertas y ahorrar en tu factura, visita
-**[InvoiceDown](https://www.invoicedown.com/)**.
-
 ## Requisitos
 
 - Node.js (ver [`.nvmrc`](.nvmrc) → 22.20.0)
