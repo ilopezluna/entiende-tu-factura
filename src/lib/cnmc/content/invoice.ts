@@ -4,8 +4,8 @@
  * Reference: BOE Resolution of 6 October 2022, Annex I, Table 2.
  * https://www.boe.es/diario_boe/txt.php?id=BOE-A-2022-16989
  *
- * Kept here rather than next to whoever renders it, so the web app and the MCP
- * server say the same thing. The type matters more than it looks: on anything
+ * Kept here rather than next to whoever renders it, so every view says the
+ * same thing. The type matters more than it looks: on anything
  * other than a normal invoice the amounts do not mean what they usually mean.
  */
 
