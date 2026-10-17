@@ -23,6 +23,7 @@ import {
   Home,
   ArrowLeft,
   ArrowRight,
+  CalendarDays,
   Leaf,
   PiggyBank,
   TrendingUp,
@@ -95,6 +96,18 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
   // Actual invoice total (with taxes) and its billing period length.
   const invoiceTotal = qrParams.imp ?? 0;
   const periodDays = useMemo(() => calculatePeriodDays(qrParams), [qrParams]);
+
+  // Human-readable billing period, e.g. «01/11/2025 – 31/12/2025».
+  const periodLabel = useMemo(() => {
+    if (!qrParams.iniF || !qrParams.finF) return null;
+    const fmt = (d: string) =>
+      new Date(d + 'T00:00:00').toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    return `${fmt(qrParams.iniF)} – ${fmt(qrParams.finF)}`;
+  }, [qrParams]);
 
   // Per-category amounts billed in THIS invoice (pre-tax for power/energy; the rest
   // — taxes, equipment rental, social bonus… — is the remainder up to the total).
@@ -173,19 +186,31 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
           </button>
         </header>
 
-        {/* Summary: total of this invoice and its billing period */}
+        {/* Summary: what this invoice costs and the period it covers */}
         <section className="mb-12">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-              Total de esta factura
-            </p>
-            <p className="text-4xl md:text-5xl font-black text-gray-900 mt-1">
-              {formatCurrency(invoiceTotal)}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              Lo que has pagado en este periodo
-              {periodDays ? ` de ${periodDays} días` : ''}.
-            </p>
+          <div className="bg-primary rounded-2xl p-8 md:p-10 text-white shadow-xl relative overflow-hidden">
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+              <div>
+                <p className="text-sm font-medium text-white/70 uppercase tracking-wide">
+                  Total de esta factura
+                </p>
+                <p className="text-5xl md:text-6xl font-black mt-2">
+                  {formatCurrency(invoiceTotal)}
+                </p>
+                <p className="text-white/80 text-sm mt-2">Lo que has pagado por tu luz</p>
+              </div>
+              <div className="sm:text-right sm:border-l sm:border-white/20 sm:pl-10">
+                <p className="text-sm font-medium text-white/70 uppercase tracking-wide">
+                  Periodo facturado
+                </p>
+                <p className="text-3xl md:text-4xl font-black mt-2 flex items-center gap-3 sm:justify-end">
+                  <CalendarDays className="w-8 h-8" aria-hidden="true" />
+                  {periodDays ? `${periodDays} días` : '—'}
+                </p>
+                {periodLabel && <p className="text-white/80 text-sm mt-2">{periodLabel}</p>}
+              </div>
+            </div>
+            <div className="absolute -right-20 -top-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
           </div>
         </section>
 
