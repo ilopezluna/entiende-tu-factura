@@ -52,6 +52,21 @@ export function formatCurrencyPerMonth(value: number): string {
 }
 
 /**
+ * Format a daily cost (€/día)
+ * @param value - The daily cost value
+ * @returns Formatted string like "1.234,56€/día" or "1.234€/día"
+ */
+export function formatCurrencyPerDay(value: number): string {
+  // A positive cost that rounds to "0€" at the standard two decimals is shown
+  // as an explicit floor rather than as zero, so a nonzero bill never reads
+  // as free.
+  if (value > 0 && formatNumber(value) === '0') {
+    return '< 0,01€/día';
+  }
+  return `${formatNumber(value)}€/día`;
+}
+
+/**
  * Format power in kW
  * @param value - The power value
  * @returns Formatted string like "3,45 kW"

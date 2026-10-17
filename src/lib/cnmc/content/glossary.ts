@@ -18,6 +18,7 @@ export type ConceptId =
   | 'termino_potencia'
   | 'termino_energia'
   | 'periodos_p1_p2_p3'
+  | 'periodo_facturacion'
   | 'impuesto_electricidad'
   | 'iva'
   | 'alquiler_contador'
@@ -61,6 +62,12 @@ export const GLOSSARY: Record<ConceptId, Concept> = {
     explanation:
       'La tarifa doméstica 2.0TD divide el día en tres tramos: P1 punta (el más caro), P2 llano y P3 valle (el más barato). Los fines de semana y festivos nacionales son valle las 24 horas. Para la potencia contratada solo hay dos tramos: P1 punta y P2 valle.',
     fields: ['caP1', 'caP2', 'caP3', 'prE1', 'prE2', 'prE3', 'pP1', 'pP2'],
+  },
+  periodo_facturacion: {
+    id: 'periodo_facturacion',
+    title: 'Periodo de facturación',
+    explanation: 'Los días de luz que cubre esta factura. Lo habitual es un mes.',
+    fields: ['iniF', 'finF'],
   },
   impuesto_electricidad: {
     id: 'impuesto_electricidad',
