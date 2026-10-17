@@ -4,11 +4,7 @@ import { extractCnmcUrl, isCNMCUrl, loadPdfJs } from '../lib/cnmc/extraction';
 import { CropArea, fileToDataUrl, cropImageToFile, cropPdfToFile } from '../utils/imageProcessing';
 
 export type InvoiceQrStep =
-  | 'upload'
-  | 'processing'
-  | 'manual-selection'
-  | 'processing-crop'
-  | 'error';
+  'upload' | 'processing' | 'manual-selection' | 'processing-crop' | 'error';
 
 interface InvoiceQrState {
   step: InvoiceQrStep;
