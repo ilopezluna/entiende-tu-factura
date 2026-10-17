@@ -1,31 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
-  calculateBreakdownPercentages,
   calculatePeriodDays,
   splitInvoiceAmounts,
   getPermanenciaStatus,
-  FALLBACK_BREAKDOWN_PERCENTAGES,
 } from '../utils/invoiceSummary';
-import type { CostBreakdown } from '../utils/costCalculations';
 import type { QrParameters } from '../types';
-
-const baseBreakdown = (overrides: Partial<CostBreakdown> = {}): CostBreakdown => ({
-  energyByPeriod: [],
-  actualMonths: 12,
-  totalEnergyCost: 0,
-  monthlyEnergyCost: 50,
-  totalPowerCost: 0,
-  monthlyPowerCost: 30,
-  subtotalElectricity: 80,
-  electricityTax: 4,
-  electricityTaxRate: 0.0511269632,
-  equipmentFee: 0.83,
-  subtotalBeforeIVA: 84.83,
-  iva: 15.17,
-  ivaRate: 0.21,
-  totalMonthlyCost: 100,
-  ...overrides,
-});
 
 const baseQrParams = (overrides: Partial<QrParameters> = {}): QrParameters => ({
   cp: '28001',
@@ -42,25 +21,6 @@ const baseQrParams = (overrides: Partial<QrParameters> = {}): QrParameters => ({
   tc: 'E0',
   impPot: 20,
   ...overrides,
-});
-
-describe('calculateBreakdownPercentages', () => {
-  it('splits the monthly estimate into energy, power and taxes', () => {
-    const result = calculateBreakdownPercentages(baseBreakdown());
-    expect(result).toEqual({ energy: 50, power: 30, taxes: 20 });
-  });
-
-  it('falls back to a fixed split when there is no total to divide by', () => {
-    expect(calculateBreakdownPercentages(baseBreakdown({ totalMonthlyCost: 0 }))).toEqual(
-      FALLBACK_BREAKDOWN_PERCENTAGES,
-    );
-  });
-
-  it('returns a copy of the fallback so callers cannot mutate it', () => {
-    const result = calculateBreakdownPercentages(baseBreakdown({ totalMonthlyCost: -5 }));
-    result.energy = 99;
-    expect(FALLBACK_BREAKDOWN_PERCENTAGES.energy).toBe(45);
-  });
 });
 
 describe('calculatePeriodDays', () => {

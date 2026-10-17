@@ -11,14 +11,10 @@
 import React, { useMemo } from 'react';
 import {
   QrParameters,
-  calculateCostBreakdown,
-  CostBreakdown,
-  calculateBreakdownPercentages,
   calculatePeriodDays,
   splitInvoiceAmounts,
   getPermanenciaStatus,
   formatCurrency,
-  formatCurrencyPerMonth,
   formatPercentage,
 } from '../lib/cnmc';
 import {
@@ -27,6 +23,7 @@ import {
   Home,
   ArrowLeft,
   ArrowRight,
+  CalendarDays,
   Leaf,
   PiggyBank,
   TrendingUp,
@@ -96,19 +93,25 @@ interface UnderstandYourInvoiceProps {
 }
 
 const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams, onReset }) => {
-  // Compute cost breakdown
-  const costBreakdown = useMemo<CostBreakdown>(() => calculateCostBreakdown(qrParams), [qrParams]);
-
-  // Compute breakdown percentages for the visual chart
-  const breakdownPercentages = useMemo(
-    () => calculateBreakdownPercentages(costBreakdown),
-    [costBreakdown],
-  );
-
-  // Actual invoice total (with taxes) vs the averaged monthly estimate.
-  const invoiceTotal = qrParams.imp ?? 0;
-  const consumptionMonths = Math.round(costBreakdown.actualMonths);
+  // Actual invoice total (with taxes) and its billing period length. The total
+  // is null when the QR omits it, so an unknown amount never renders as €0.
+  const invoiceTotal =
+    typeof qrParams.imp === 'number' && Number.isFinite(qrParams.imp) ? qrParams.imp : null;
   const periodDays = useMemo(() => calculatePeriodDays(qrParams), [qrParams]);
+
+  // Human-readable billing period, e.g. «01/11/2025 – 31/12/2025». Gated on
+  // periodDays so the range and the day count always agree: both come from
+  // iniF/finF and hide together when the period is missing, reversed or empty.
+  const periodLabel = useMemo(() => {
+    if (periodDays === null || !qrParams.iniF || !qrParams.finF) return null;
+    const fmt = (d: string) =>
+      new Date(d + 'T00:00:00').toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    return `${fmt(qrParams.iniF)} – ${fmt(qrParams.finF)}`;
+  }, [qrParams, periodDays]);
 
   // Per-category amounts billed in THIS invoice (pre-tax for power/energy; the rest
   // — taxes, equipment rental, social bonus… — is the remainder up to the total).
@@ -117,34 +120,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
   const energyInvoice = invoiceSplit.energy;
   const otherInvoice = invoiceSplit.other;
 
-  // Breakdown of the averaged monthly estimate.
-  const estimateItems: BreakdownItem[] = [
-    {
-      label: 'Energía consumida',
-      caption: 'Lo que cuesta generar la electricidad que usas.',
-      color: 'bg-blue-500',
-      amount: formatCurrencyPerMonth(costBreakdown.monthlyEnergyCost),
-      percentage: breakdownPercentages.energy,
-    },
-    {
-      label: 'Potencia contratada (fijo)',
-      caption: 'El coste fijo por tener la luz disponible en tu casa.',
-      color: 'bg-sky-400',
-      amount: formatCurrencyPerMonth(costBreakdown.monthlyPowerCost),
-      percentage: breakdownPercentages.power,
-    },
-    {
-      label: 'Impuestos y otros',
-      caption: 'Impuesto eléctrico, IVA y alquiler del contador.',
-      color: 'bg-emerald-400',
-      amount: formatCurrencyPerMonth(
-        costBreakdown.electricityTax + costBreakdown.equipmentFee + costBreakdown.iva,
-      ),
-      percentage: breakdownPercentages.taxes,
-    },
-  ];
-
-  // Breakdown of THIS invoice (proportions over the actual total).
   const invoiceItems: BreakdownItem[] = [];
   if (energyInvoice !== null) {
     invoiceItems.push({
@@ -215,43 +190,40 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
           </button>
         </header>
 
-        {/* Summary: estimated monthly cost (hero) vs actual invoice total (validation) */}
+        {/* Summary: what this invoice costs, the period it covers and its CUPS */}
         <section className="mb-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div
-              className={`bg-blue-50/50 rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm p-6 ${
-                invoiceTotal > 0 ? 'md:col-span-2' : 'md:col-span-3'
-              }`}
-            >
+            <div className="md:col-span-2 bg-blue-50/50 rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm p-6">
               <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                Coste mensual estimado
+                Total de esta factura
               </p>
               <p className="text-4xl md:text-5xl font-black text-primary mt-1">
-                {formatCurrencyPerMonth(costBreakdown.totalMonthlyCost)}
+                {invoiceTotal !== null ? formatCurrency(invoiceTotal) : '—'}
               </p>
-              <p className="text-sm text-gray-700 mt-3">
-                <strong>Tu gasto medio real:</strong> no consumes lo mismo en invierno que en
-                verano, por eso es más fiable que fijarte en una sola factura.
+              <p className="text-sm text-gray-700 mt-2">
+                {invoiceTotal !== null
+                  ? 'Lo que has pagado por tu luz'
+                  : 'El QR de esta factura no incluye el total'}
               </p>
-              <p className="text-xs text-gray-400 mt-2">
-                Basado en tu consumo de los últimos {consumptionMonths}{' '}
-                {consumptionMonths === 1 ? 'mes' : 'meses'}.
-              </p>
-            </div>
-            {invoiceTotal > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:col-span-1">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                  Total de esta factura
-                </p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {formatCurrency(invoiceTotal)}
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Lo que has pagado en este periodo
-                  {periodDays ? ` de ${periodDays} días` : ''}.
+
+              <div className="mt-4 pt-4 border-t border-blue-200 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-primary flex-shrink-0" aria-hidden="true" />
+                <p className="text-sm text-gray-700">
+                  <span className="font-bold">{periodDays ? `${periodDays} días` : '—'}</span>
+                  {periodLabel ? ` · ${periodLabel}` : ''}
                 </p>
               </div>
-            )}
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">CUPS</p>
+              <p className="font-mono text-lg font-bold text-gray-900 mt-2 break-all">
+                {qrParams.cups}
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                El código único de tu suministro. Lo necesitas si cambias de comercializadora.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -284,22 +256,16 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 enciendas ni una sola bombilla.
               </p>
 
-              <div className="bg-blue-50 p-3 rounded-lg mb-4 space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-700">Coste fijo mensual estimado</span>
-                  <span className="text-lg font-bold text-primary">
-                    {formatCurrencyPerMonth(costBreakdown.monthlyPowerCost)}
-                  </span>
-                </div>
-                {qrParams.impPot > 0 && (
-                  <div className="flex items-center justify-between border-t border-blue-100 pt-2">
+              {qrParams.impPot > 0 && (
+                <div className="bg-blue-50 p-3 rounded-lg mb-4 text-sm">
+                  <div className="flex items-center justify-between">
                     <span className="font-medium text-gray-700">Tu coste fijo en esta factura</span>
                     <span className="text-lg font-bold text-gray-900">
                       {formatCurrency(qrParams.impPot)}
                     </span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-primary">
                 <p className="text-sm italic text-gray-700">
@@ -329,15 +295,9 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 durante el mes.
               </p>
 
-              <div className="bg-blue-50 p-3 rounded-lg mb-4 space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-700">Coste variable mensual estimado</span>
-                  <span className="text-lg font-bold text-primary">
-                    {formatCurrencyPerMonth(costBreakdown.monthlyEnergyCost)}
-                  </span>
-                </div>
-                {qrParams.impEner !== undefined && qrParams.impEner > 0 && (
-                  <div className="flex items-center justify-between border-t border-blue-100 pt-2">
+              {qrParams.impEner !== undefined && qrParams.impEner > 0 && (
+                <div className="bg-blue-50 p-3 rounded-lg mb-4 text-sm">
+                  <div className="flex items-center justify-between">
                     <span className="font-medium text-gray-700">
                       Tu coste variable en esta factura
                     </span>
@@ -345,8 +305,8 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                       {formatCurrency(qrParams.impEner)}
                     </span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-primary">
                 <p className="text-sm italic text-gray-700">
@@ -359,9 +319,9 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
           </div>
         </section>
 
-        {/* Section 2: Visual Breakdowns — this invoice vs. monthly estimate */}
-        <section className="mb-12 space-y-6">
-          {invoiceTotal > 0 && invoiceItems.length > 0 && (
+        {/* Section 2: Visual breakdown of this invoice */}
+        <section className="mb-12">
+          {invoiceTotal !== null && invoiceTotal > 0 && invoiceItems.length > 0 && (
             <BreakdownCard
               title="Desglose de esta factura"
               subtitle="Así se reparte cada euro de lo que has pagado en esta factura:"
@@ -370,14 +330,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
               totalAmount={formatCurrency(invoiceTotal)}
             />
           )}
-
-          <BreakdownCard
-            title="Desglose de tu coste mensual estimado"
-            subtitle="Así se repartiría cada euro de tu gasto medio al mes, según tu consumo del último año:"
-            items={estimateItems}
-            totalLabel="Coste mensual estimado"
-            totalAmount={formatCurrencyPerMonth(costBreakdown.totalMonthlyCost)}
-          />
         </section>
 
         {/* Section: Entiende tu Contrato */}
