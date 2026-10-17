@@ -188,29 +188,28 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
 
         {/* Summary: what this invoice costs and the period it covers */}
         <section className="mb-12">
-          <div className="bg-primary rounded-2xl p-8 md:p-10 text-white shadow-xl relative overflow-hidden">
-            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+          <div className="bg-blue-50/50 rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
               <div>
-                <p className="text-sm font-medium text-white/70 uppercase tracking-wide">
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                   Total de esta factura
                 </p>
-                <p className="text-5xl md:text-6xl font-black mt-2">
+                <p className="text-4xl md:text-5xl font-black text-primary mt-1">
                   {formatCurrency(invoiceTotal)}
                 </p>
-                <p className="text-white/80 text-sm mt-2">Lo que has pagado por tu luz</p>
+                <p className="text-sm text-gray-700 mt-2">Lo que has pagado por tu luz</p>
               </div>
-              <div className="sm:text-right sm:border-l sm:border-white/20 sm:pl-10">
-                <p className="text-sm font-medium text-white/70 uppercase tracking-wide">
+              <div className="sm:border-l sm:border-blue-200 sm:pl-8">
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                   Periodo facturado
                 </p>
-                <p className="text-3xl md:text-4xl font-black mt-2 flex items-center gap-3 sm:justify-end">
-                  <CalendarDays className="w-8 h-8" aria-hidden="true" />
+                <p className="text-2xl md:text-3xl font-black text-gray-900 mt-1 flex items-center gap-2">
+                  <CalendarDays className="w-7 h-7 text-primary" aria-hidden="true" />
                   {periodDays ? `${periodDays} días` : '—'}
                 </p>
-                {periodLabel && <p className="text-white/80 text-sm mt-2">{periodLabel}</p>}
+                {periodLabel && <p className="text-sm text-gray-500 mt-2">{periodLabel}</p>}
               </div>
             </div>
-            <div className="absolute -right-20 -top-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
           </div>
         </section>
 
