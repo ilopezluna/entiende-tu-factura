@@ -51,20 +51,30 @@ describe('calculatePeriodDays', () => {
 
 describe('getCostPerDay', () => {
   it('divides the total with taxes by the billing period length', () => {
-    expect(getCostPerDay(baseQrParams({ imp: 30, iniF: '2024-03-01', finF: '2024-03-31' }))).toBe(
-      1,
+    expect(getCostPerDay(baseQrParams({ imp: 45, iniF: '2024-03-01', finF: '2024-03-31' }))).toBe(
+      1.5,
     );
   });
 
-  it('returns null when the total is missing or non-positive', () => {
+  it('returns null when the total is missing, non-positive or non-finite', () => {
     const period = { iniF: '2024-03-01', finF: '2024-03-31' };
     expect(getCostPerDay(baseQrParams({ ...period }))).toBeNull();
     expect(getCostPerDay(baseQrParams({ imp: 0, ...period }))).toBeNull();
     expect(getCostPerDay(baseQrParams({ imp: -5, ...period }))).toBeNull();
+    // imp=1e309 parses as Infinity, which the summary must not render.
+    expect(getCostPerDay(baseQrParams({ imp: 1e309, ...period }))).toBeNull();
   });
 
   it('returns null when the period is missing', () => {
     expect(getCostPerDay(baseQrParams({ imp: 30 }))).toBeNull();
+  });
+
+  it('returns null for invoices that adjust earlier bills', () => {
+    const period = { imp: 30, iniF: '2024-03-01', finF: '2024-03-31' };
+    expect(getCostPerDay(baseQrParams({ tf: 'C', ...period }))).toBeNull(); // complementaria
+    expect(getCostPerDay(baseQrParams({ tf: 'G', ...period }))).toBeNull(); // regularizadora
+    expect(getCostPerDay(baseQrParams({ tf: 'N', ...period }))).toBe(1); // normal
+    expect(getCostPerDay(baseQrParams(period))).toBe(1); // tf ausente: normal
   });
 });
 

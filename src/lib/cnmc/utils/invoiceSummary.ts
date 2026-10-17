@@ -8,6 +8,7 @@
  */
 
 import { QrParameters } from '../types';
+import { getInvoiceTypeFromTf, isRegularInvoice } from '../content/invoice';
 
 const MS_PER_DAY = 86_400_000;
 
@@ -77,13 +78,19 @@ export interface PermanenciaStatus {
 
 /**
  * Average cost per day of this invoice: total with taxes divided by the
- * billing period length. Null when the QR omits the total or the period, or
- * when either is not positive — an unknown figure must never render as €0.
+ * billing period length. Null when the QR omits the total or the period, when
+ * either is not positive, or when the invoice is not a normal period's bill —
+ * complementary, regularization and cancellation invoices adjust earlier
+ * bills, so their totals are not a period's cost to divide out.
  */
 export const getCostPerDay = (qrParams: QrParameters): number | null => {
+  if (!isRegularInvoice(getInvoiceTypeFromTf(qrParams.tf))) return null;
   const days = calculatePeriodDays(qrParams);
-  if (!qrParams.imp || qrParams.imp <= 0 || days === null) return null;
-  return qrParams.imp / days;
+  const total = qrParams.imp;
+  if (typeof total !== 'number' || !Number.isFinite(total) || total <= 0 || days === null) {
+    return null;
+  }
+  return total / days;
 };
 
 /**
