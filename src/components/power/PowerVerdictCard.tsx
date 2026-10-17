@@ -82,8 +82,7 @@ const PowerVerdictCard: React.FC<PowerVerdictCardProps> = ({ analysis }) => {
             </h3>
             <p className="text-sm text-gray-600">
               El QR de esta factura no trae el dato del maxímetro, así que no podemos darte un
-              veredicto automático. Puedes consultarlo en el área de cliente de tu distribuidora o
-              usar la calculadora de InvoiceDown del final de la página.
+              veredicto automático. Puedes consultarlo en el área de cliente de tu distribuidora.
             </p>
           </div>
         </div>
@@ -156,8 +155,7 @@ const PowerVerdictCard: React.FC<PowerVerdictCardProps> = ({ analysis }) => {
             <div className="mt-6 bg-blue-50/50 p-4 rounded-lg border-l-4 border-primary">
               <p className="text-sm text-gray-700">
                 Tu QR no incluye el precio del término de potencia, así que no podemos ponerle euros
-                al ahorro. Puedes encontrar el precio en el detalle de tu factura o usar la
-                calculadora de InvoiceDown del final de la página.
+                al ahorro. Puedes encontrar el precio en el detalle de tu factura.
               </p>
             </div>
           )}

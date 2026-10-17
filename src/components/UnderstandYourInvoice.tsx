@@ -34,11 +34,6 @@ import {
   Clock,
 } from 'lucide-react';
 import ContractDetails from './ContractDetails';
-import {
-  INVOICEDOWN_URL,
-  INVOICEDOWN_POTENCIA_URL,
-  INVOICEDOWN_PRECIO_LUZ_URL,
-} from '../constants';
 
 interface BreakdownItem {
   label: string;
@@ -402,15 +397,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                   compañía cuando quieras sin coste adicional.
                 </p>
               </div>
-              <a
-                href={INVOICEDOWN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-lg hover:bg-emerald-700 transition-colors flex-shrink-0"
-              >
-                Ver ofertas
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
           </section>
         )}
@@ -428,15 +414,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                   cuando quieras sin coste adicional.
                 </p>
               </div>
-              <a
-                href={INVOICEDOWN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-lg hover:bg-emerald-700 transition-colors flex-shrink-0"
-              >
-                Ver ofertas
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
           </section>
         )}
@@ -457,15 +434,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                   cuando termine.
                 </p>
               </div>
-              <a
-                href={INVOICEDOWN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 font-bold text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
-              >
-                Explorar ofertas
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
           </section>
         )}
@@ -493,15 +461,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 Analiza tu potencia con esta misma factura
                 <ArrowRight className="w-4 h-4" />
               </a>
-              <a
-                href={INVOICEDOWN_POTENCIA_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 mt-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                Calcula tu potencia óptima en InvoiceDown
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
 
             {/* Tip 2 */}
@@ -512,15 +471,6 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 Las comercializadoras cambian sus precios constantemente. Comparar entre ofertas es
                 la forma más rápida de dejar de pagar de más por la misma luz.
               </p>
-              <a
-                href={INVOICEDOWN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                Encuentra ofertas
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
 
             {/* Tip 3 */}
@@ -531,49 +481,9 @@ const UnderstandYourInvoice: React.FC<UnderstandYourInvoiceProps> = ({ qrParams,
                 En el mercado regulado (PVPC) el precio de la luz cambia cada hora del día. Vigílalo
                 y concentra el consumo en las horas más baratas para ahorrar.
               </p>
-              <a
-                href={INVOICEDOWN_PRECIO_LUZ_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                Mira los precios diarios de la luz
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
           </div>
         </section>
-
-        {/* Footer Call to Action */}
-        <footer className="bg-primary rounded-2xl p-8 text-center text-white relative overflow-hidden">
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">¿Quieres ver cuánto podrías ahorrar hoy?</h3>
-            <p className="text-white/80 mb-8">
-              En InvoiceDown comparamos entre las mejores comercializadoras para encontrarte la
-              tarifa que mejor se adapta a tu consumo real.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href={INVOICEDOWN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-4 bg-white text-primary font-black rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg text-center"
-              >
-                Comparar ofertas en InvoiceDown
-              </a>
-            </div>
-          </div>
-
-          {/* Background Decoration */}
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path
-                d="M0,100 C20,80 40,80 60,100 C80,120 100,100 100,100 V0 H0 Z"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
-        </footer>
       </div>
     </div>
   );
