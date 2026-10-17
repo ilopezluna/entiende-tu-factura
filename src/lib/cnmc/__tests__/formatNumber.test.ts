@@ -11,7 +11,10 @@ describe('formatCurrencyPerDay', () => {
     expect(formatCurrencyPerDay(2)).toBe('2€/día');
   });
 
-  it('does not round a nonzero sub-half-cent cost to zero', () => {
-    expect(formatCurrencyPerDay(0.004)).toBe('0,0040€/día');
+  it('shows an explicit floor for a nonzero sub-cent cost', () => {
+    // 0,01€ repartidos en 365 días ≈ 0,0000274€/día: nunca «0€/día».
+    expect(formatCurrencyPerDay(0.01 / 365)).toBe('< 0,01€/día');
+    expect(formatCurrencyPerDay(0.004)).toBe('< 0,01€/día');
+    expect(formatCurrencyPerDay(0.005)).toBe('0,01€/día');
   });
 });

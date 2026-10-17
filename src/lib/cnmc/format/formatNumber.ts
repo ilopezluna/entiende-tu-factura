@@ -57,10 +57,13 @@ export function formatCurrencyPerMonth(value: number): string {
  * @returns Formatted string like "1.234,56€/día" or "1.234€/día"
  */
 export function formatCurrencyPerDay(value: number): string {
-  // Below half a cent the standard two decimals round to "0€", which would
-  // display a nonzero bill as zero; widen the precision instead.
-  const decimals = value > 0 && value < 0.005 ? 4 : 2;
-  return `${formatNumber(value, decimals)}€/día`;
+  // A positive cost that rounds to "0€" at the standard two decimals is shown
+  // as an explicit floor rather than as zero, so a nonzero bill never reads
+  // as free.
+  if (value > 0 && formatNumber(value) === '0') {
+    return '< 0,01€/día';
+  }
+  return `${formatNumber(value)}€/día`;
 }
 
 /**
