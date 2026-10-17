@@ -9,6 +9,7 @@ import {
   getRevisionFrequencyLabel,
   formatPricePerKwh,
   isSinglePriceContract,
+  getEnergyPricesNote,
   formatPower,
   formatCurrencyPerMonth,
   formatNumber,
@@ -101,6 +102,7 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
   const category = getContractTypeCategory(contractType);
   const style = categoryStyles[category];
   const singlePrice = isSinglePriceContract(contractType);
+  const energyPricesNote = getEnergyPricesNote(category);
 
   const powerByPeriod = calculatePowerByPeriod(qrParams);
   const hasPowerPrices = powerByPeriod.length > 0;
@@ -270,6 +272,11 @@ const ContractDetails: React.FC<ContractDetailsProps> = ({ qrParams }) => {
                   <p className="text-xs text-gray-500 mt-3 italic">
                     Lo que pagas por cada kWh que consumes.
                   </p>
+                  {energyPricesNote && (
+                    <p className="text-xs text-amber-700 mt-2 leading-relaxed">
+                      {energyPricesNote}
+                    </p>
+                  )}
                 </div>
               )}
             </div>

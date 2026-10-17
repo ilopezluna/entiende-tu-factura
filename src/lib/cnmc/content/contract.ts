@@ -43,9 +43,10 @@ export function getContractTypeExplanation(type: ContractType): string {
   return explanations[type];
 }
 
-export function getContractTypeCategory(
-  type: ContractType,
-): 'regulated' | 'fixed' | 'indexed' | 'flat' | 'flexible' {
+/** Behavioral family of a contract type: drives styling and caveats in the UI. */
+export type ContractCategory = 'regulated' | 'fixed' | 'indexed' | 'flat' | 'flexible';
+
+export function getContractTypeCategory(type: ContractType): ContractCategory {
   switch (type) {
     case ContractType.PVPC:
       return 'regulated';
@@ -61,6 +62,22 @@ export function getContractTypeCategory(
     case ContractType.FLEXIBLE:
       return 'flexible';
   }
+}
+
+/**
+ * Caveat shown under the energy price cards, or null when the prices speak for
+ * themselves.
+ *
+ * In indexed contracts the QR's prE1/prE2/prE3 are the prices per 2.0TD period
+ * of the last billed period (BOE-A-2022-16989, Table 1). The market actually
+ * prices hour by hour (type B) and every indexed type reprices over time, so
+ * those values are a snapshot, not a contract term — worth saying out loud,
+ * because fixed-price contracts render the same cards.
+ */
+export function getEnergyPricesNote(category: ContractCategory): string | null {
+  return category === 'indexed'
+    ? 'Tu contrato es indexado: estos son los precios de tu última factura. Al seguir el mercado, pueden subir o bajar cada mes.'
+    : null;
 }
 
 export function getRevisionFrequencyLabel(rev: number): string | null {
