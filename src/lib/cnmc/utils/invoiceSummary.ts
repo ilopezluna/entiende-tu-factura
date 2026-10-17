@@ -1,49 +1,21 @@
 /**
  * Derived invoice figures.
  *
- * Pure functions over QrParameters and CostBreakdown: the per-category splits,
+ * Pure functions over QrParameters: the per-category splits,
  * the billing period length and the permanence (permanencia) status. These used
  * to live inline in the result view; they are shared domain logic, so they live
  * here and are covered by tests.
  */
 
 import { QrParameters } from '../types';
-import { CostBreakdown } from './costCalculations';
 
 const MS_PER_DAY = 86_400_000;
-
-/** Fallback split used when no total is available to take proportions over. */
-export const FALLBACK_BREAKDOWN_PERCENTAGES: BreakdownPercentages = {
-  energy: 45,
-  power: 30,
-  taxes: 25,
-};
 
 export interface BreakdownPercentages {
   energy: number;
   power: number;
   taxes: number;
 }
-
-/**
- * Share of the averaged monthly estimate taken by energy, power and everything
- * else (electricity tax, equipment rental, IVA). Percentages are rounded, so
- * they need not sum to exactly 100.
- */
-export const calculateBreakdownPercentages = (breakdown: CostBreakdown): BreakdownPercentages => {
-  if (!breakdown || breakdown.totalMonthlyCost <= 0) {
-    return { ...FALLBACK_BREAKDOWN_PERCENTAGES };
-  }
-
-  const total = breakdown.totalMonthlyCost;
-  const taxes = breakdown.electricityTax + breakdown.equipmentFee + breakdown.iva;
-
-  return {
-    energy: Math.round((breakdown.monthlyEnergyCost / total) * 100),
-    power: Math.round((breakdown.monthlyPowerCost / total) * 100),
-    taxes: Math.round((taxes / total) * 100),
-  };
-};
 
 /**
  * Length of the billing period in days, or null when the QR omits either bound

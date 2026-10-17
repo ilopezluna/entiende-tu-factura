@@ -4,16 +4,11 @@
  */
 
 export {
-  calculateActualMonths,
-  resolveConsumptionMonths,
-  calculateCostBreakdown,
   calculatePowerByPeriod,
   getPowerPriceBasis,
   ELECTRICITY_TAX_RATE,
   IVA_RATE,
-  type EnergyPeriodCost,
   type PowerPeriodCost,
-  type CostBreakdown,
 } from './costCalculations';
 
 export {
@@ -33,11 +28,9 @@ export {
 } from './powerAnalysis';
 
 export {
-  calculateBreakdownPercentages,
   calculatePeriodDays,
   splitInvoiceAmounts,
   getPermanenciaStatus,
-  FALLBACK_BREAKDOWN_PERCENTAGES,
   type BreakdownPercentages,
   type InvoiceAmountSplit,
   type PermanenciaStatus,
